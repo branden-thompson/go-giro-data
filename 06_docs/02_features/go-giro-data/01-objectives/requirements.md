@@ -4,7 +4,7 @@ date: 2026-10-06
 phase: DISCOVER
 sev: SEV-0
 authority: HUM LEAD
-status: "DRAFT — approved at the DISCOVER gate. Rows marked (path) wait for watchpost D-20's path ruling (B: GIRO-driven on a PyIRI port; D: derived from NOAA GloTEC) at DISCOVER exit."
+status: "DRAFT — approved at the DISCOVER gate. The path is B on D (watchpost D-40): GIRO station residuals assimilated over a GloTEC-derived background, a PyIRI-port climatology as fallback."
 ---
 
 # Requirements
@@ -74,18 +74,21 @@ PLAN may rename, never drop.
 |---|---|---|---|
 | R-8.1 | One update's CPU and peak memory are measured and within G-G1's target; it recomputes only on new data | G-G1 | a benchmark, recorded |
 
-## R-9 — The path's own requirements *(path)*
+## R-9 — The path's own requirements (B on D, watchpost D-40)
 
-| # | Requirement | Applies if | Instrument |
+| # | Requirement | Role | Instrument |
 |---|---|---|---|
-| R-9.1 | A background model: PyIRI's method, ported (foF2 and M(3000)F2, whole globe, every hour) | B, and D where GloTEC has no observations | `TestTheBackgroundMatchesPyIRI` (against PyIRI's published outputs) |
-| R-9.2 | An effective sunspot number fitted from measurements (Secan & Wilkinson 1997) | B | `TestTheEffectiveSunspotFit` |
-| R-9.3 | Spatial assimilation of station residuals on the sphere with a valid kernel (Gneiting 2013) | B | `TestTheKernelIsValidOnTheSphere`, G-M3 |
-| R-9.4 | foF2 and M(3000)F2 derived from GloTEC's NmF2 and hmF2 | D | `TestFoF2FromNmF2`, G-M3 |
-| R-9.5 | GIRO readings at a schedule GIRO's limits allow, with confidence scores used | B | the request budget; `TestLowConfidenceReadingsAreDropped` |
+| R-9.1 | A climatology: PyIRI's method, ported (foF2 and M(3000)F2, whole globe, every hour) | the fallback when GloTEC is missing or stale, and the baseline (D-23) | `TestTheBackgroundMatchesPyIRI` (against PyIRI's published outputs) |
+| R-9.2 | An effective sunspot number fitted from measurements (Secan & Wilkinson 1997), if PLAN's dry run shows it improves the fallback | the fallback | `TestTheEffectiveSunspotFit` |
+| R-9.3 | Spatial assimilation of station residuals (ionosonde minus background) on the sphere with a valid kernel (Gneiting 2013) | the assimilation | `TestTheKernelIsValidOnTheSphere`, G-M3 |
+| R-9.4 | foF2 and M(3000)F2 derived from GloTEC's NmF2 and hmF2 | the background | `TestFoF2FromNmF2`, G-M3 |
+| R-9.5 | GIRO readings under D-39's throttle, with confidence scores used | the assimilation's input | the request budget; `TestLowConfidenceReadingsAreDropped` |
 
 ## Metrics
 
 G-M1 to G-M4 and G-G1 as ruled (watchpost D-12) in `problem-statement.md`. Targets are set in DISCOVER and
 the PLAN-time dry run. G-M3's starting point from the literature is about 0.5 MHz RMS near stations and
 1-2 MHz far from them, with climatology as the baseline (watchpost D-23).
+
+The prototype scores that chose the path (one day, untuned): foF2 RMS 1.00 MHz overall and 0.37 MHz within
+500 km of a station, held out (watchpost `wave2-findings.md`).
