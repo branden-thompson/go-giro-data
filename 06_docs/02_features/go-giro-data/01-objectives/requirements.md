@@ -44,7 +44,8 @@ PLAN may rename, never drop.
 |---|---|---|---|
 | R-4.1 | Each source's name, terms and required citation are readable by the host, so it can credit them | G-M1 | `TestEverySourceCarriesItsTerms` (G-M1's list) |
 | R-4.2 | The repository's README and NOTICE state every source's terms; the MIT code licence is stated not to relicense data; the NOTICE states that the GIRO readings the library fetches are for non-commercial use, and that a computed field is treated as a substantially derivative product (watchpost D-41) | G-R4; D-2; D-41 | `TestTheNoticeNamesEverySource` |
-| R-4.3 | No third-party data is committed until its provenance is ruled: no GIRO readings ever; coefficient tables only after a provenance ruling (PyIRI's CCIR/URSI tables state none) | D-2, D-31; wave 1 | `TestNoThirdPartyDataIsCommitted` (a tree scan against an allowed list) |
+| R-4.3 | No third-party data is committed except as ruled: no GIRO readings ever; of coefficient tables, only NRL's spherical-harmonic refits from PyIRI (MIT; Forsythe et al. 2024; their CCIR/URSI lineage stated in the NOTICE), never the raw CCIR/URSI tables (watchpost D-43) | D-2, D-31, D-43 | `TestNoThirdPartyDataIsCommitted` (a tree scan against an allowed list) |
+| R-4.4 | **The coefficients sit behind a swappable seam** (watchpost D-43): the climatology reads its tables through one interface, so they can be removed or replaced without touching the rest | D-43 | `TestTheClimatologyRunsOnAnySuppliedTables` |
 
 ## R-5 — The host owns the network (G-R5, GR-5)
 
