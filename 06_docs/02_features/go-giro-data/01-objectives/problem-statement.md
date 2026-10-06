@@ -4,7 +4,7 @@ date: 2026-10-05
 phase: DISCOVER (intake)
 sev: SEV-0
 authority: HUM LEAD
-status: "LOCKED (watchpost D-11); metrics ruled (watchpost D-12), targets set in DISCOVER"
+status: "LOCKED (watchpost D-11), amended (watchpost D-19); metrics ruled (watchpost D-12), targets set in DISCOVER"
 ---
 
 # Problem statement
@@ -13,13 +13,14 @@ go-giro-data has a statement of its own (watchpost D-10), beside the host requir
 DISCOVER writes for it. Its host's statements are PS-1 and PS-2, in
 `watchpost/06_docs/02_features/propagation-overlays/01-objectives/problem-statement.md`.
 
-## PS-G
+## PS-G (amended, watchpost D-19)
 
-> A developer who wants to show HF operators current ionospheric conditions has no source they are
-> free to build on and able to check: the maps published today come with no licence or reuse terms, or
-> for non-commercial use only, and none can be reproduced, so a program that shows them depends on
-> someone else's service without permission, and goes blank or wrong without warning when that service
-> changes.
+> A developer who wants to show HF operators current MUF and foF2 over the whole globe has no source
+> they are free to build on and able to check: the openly licensed maps published today are
+> regional, or are total-electron-content products that do not publish MUF; the global MUF and foF2
+> maps are for non-commercial use or behind a paid licence; and none can be re-run end to end, so a
+> program that shows them depends on someone else's service without permission, and goes blank or
+> wrong without warning when that service changes.
 
 | Criterion | |
 |---|---|
@@ -27,7 +28,7 @@ DISCOVER writes for it. Its host's statements are PS-1 and PS-2, in
 | Affected humans | the developer; the HF operators who read the result, second |
 | Tech agnostic | no technology named |
 | Non-prescriptive | permission from KC2G, or a licensed source found in DISCOVER, answers it as well as our own computation |
-| Verifiable | yes; "the maps published today" is a claim DISCOVER checks across KC2G, GIRO, Australia's Space Weather Services, NOAA SWPC and any others; a source with open terms returns as a ruling |
+| Verifiable | yes; the wave-1 source survey (watchpost `propagation-overlays/02-analysis/wave1-findings.md`) found INGV's Europe map CC BY 4.0 and NOAA GloTEC's global NmF2/hmF2 public domain, and the statement was amended to what survives (watchpost D-19) |
 
 ## Metrics (watchpost D-12)
 

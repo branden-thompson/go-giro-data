@@ -22,10 +22,11 @@ A Go library that gives a program the ionosphere's state as fields a terminal ma
 maximum usable frequency over a 3000 km path, MUF(3000), and the F2 layer's critical frequency (foF2),
 over the globe, by UTC hour, with their age and their sources' terms.
 
-**Why it exists.** The maps an HF operator reads today come from prop.kc2g.com, whose code has no
-licence and whose output has no stated reuse terms. The measured data under it (GIRO) is published for
-non-commercial use. A program that wants to show these conditions has nothing it is free to build on and
-able to check (PS-G).
+**Why it exists.** The global MUF maps an HF operator reads today come from prop.kc2g.com, whose code
+has no licence and whose output has no stated reuse terms. GIRO's global maps (IRTAM) and its data are
+non-commercial, or paid with no right to share them. The open sources found are regional (INGV, CC BY 4.0)
+or publish no MUF (NOAA GloTEC, public domain). A program that wants to show global MUF has nothing it is
+free to build on and able to check (PS-G, amended at watchpost D-19).
 
 **Its first host** is watchpost 0.19.0, whose operators' problems are PS-1 and PS-2. Its fields are drawn
 by go-tuiMaps v0.3.0.
@@ -36,16 +37,18 @@ ruled.
 **What happens if it is not built.** watchpost can show propagation only by depending on KC2G's service
 without permission, or not at all.
 
-## Problem Statement — LOCKED (watchpost D-11)
+## Problem Statement — LOCKED (watchpost D-11), amended (watchpost D-19)
 
-> **PS-G.** "A developer who wants to show HF operators current ionospheric conditions has no source
-> they are free to build on and able to check: the maps published today come with no licence or reuse
-> terms, or for non-commercial use only, and none can be reproduced, so a program that shows them
-> depends on someone else's service without permission, and goes blank or wrong without warning when
-> that service changes."
+> **PS-G.** "A developer who wants to show HF operators current MUF and foF2 over the whole globe
+> has no source they are free to build on and able to check: the openly licensed maps published
+> today are regional, or are total-electron-content products that do not publish MUF; the global MUF
+> and foF2 maps are for non-commercial use or behind a paid licence; and none can be re-run end to
+> end, so a program that shows them depends on someone else's service without permission, and goes
+> blank or wrong without warning when that service changes."
 
-The scorecard is in `problem-statement.md`. "The maps published today" is a claim that DISCOVER checks.
-A source with open terms returns as a ruling.
+The scorecard is in `problem-statement.md`. The wave-1 source survey found an openly licensed regional map
+(INGV, CC BY 4.0) and public-domain global NmF2/hmF2 (NOAA GloTEC), and PS-G was amended to what
+survives (watchpost D-19).
 
 ## Requirements
 
