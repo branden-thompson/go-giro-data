@@ -25,3 +25,4 @@ restated here; this log holds go-giro-data's own.
 | D-4 | 2026-10-05 | Restates watchpost D-16 | see watchpost D-16 | This project's brief APPROVED as presented; intake closed; DISCOVER opens. |
 | D-5 | 2026-10-05 | Restates watchpost D-19 | see watchpost D-19 | PS-G amended to the claim the source survey supports; metrics unchanged. |
 | D-6 | 2026-10-05 | Restates watchpost D-20 | see watchpost D-20 | Paths B (GIRO-driven reimplementation on a PyIRI port) and D (derived from NOAA GloTEC) go to wave 2; the path is ruled at DISCOVER exit on measurements. |
+| D-7 | 2026-10-06 | Restates watchpost D-38, D-39 | see watchpost D-38, D-39 | GIRO's throttle measured in one sitting; the feature's throttle behaviour (burst of at most 40 an hour, at most 2 a minute sustained, back-off 60 s to 15 minutes on a 429, the last good field kept) binds every phase. |
