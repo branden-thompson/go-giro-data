@@ -38,3 +38,4 @@ restated here; this log holds go-giro-data's own.
 | D-17 | 2026-10-06 | Restates watchpost D-53 | see watchpost D-53 | No reopening of `arodland/prop`; papers and PyIRI only; per-function citations; a provenance table in PLAN; the record says truthfully that 0.18.0's research read it. |
 | D-18 | 2026-10-06 | Restates watchpost D-54 | see watchpost D-54 | The library is renamed before v0.1.0; the name is its own ruling. |
 | D-19 | 2026-10-06 | Restates watchpost D-56 | see watchpost D-56 | **Renamed `go-ionomaps`** (repository, module `github.com/branden-thompson/go-ionomaps`, feature folder). Earlier rows keep the old name as they were written. |
+| D-20 | 2026-10-06 | Restates watchpost D-69 | see watchpost D-69 | G-M1 scored per layer: code and computed field free to build on; the live GIRO input non-commercial; a commercial user arranges their own access or runs on GloTEC and climatology alone; README and NOTICE say so. |
