@@ -22,6 +22,7 @@ PLAN may rename, never drop.
 | R-1.1 | MUF(3000) and foF2 over the globe for a UTC hour, on a grid a go-tuiMaps host can hand in directly (outer edges -180..180, -90..90; no antimeridian crossing), 2° by default, 1° as an option | G-R1; compute (wave 1) | `TestAGlobalFieldIsAValidTuimapsGrid`, `TestTheGridStepIsTheHostsChoice` |
 | R-1.2 | Every field carries the time it is valid for, the time it was computed, and its sources | G-R1, G-R4 | `TestAFieldSaysWhenAndFromWhat` |
 | R-1.3 | MUF(3000) is derived from foF2 and M(3000)F2 by the published ITU-R P.533 method, checked against the recommendation's own worked values before use | wave 1 (P.533 equations rebuilt from a garbled extraction) | `TestMUFFollowsP533`, its values cited |
+| R-1.4 | **Hours ahead (watchpost D-50):** fields for each hour up to 24 h ahead, from the background carried forward with the current station corrections decaying toward climatology; each labelled a forecast, with the time it was made | watchpost D-50 | `TestForecastHoursDecayTowardClimatology`, `TestAForecastSaysItIsOne`; its accuracy scored in the dry run against later soundings |
 
 ## R-2 — Readings at a point (GR-2; watchpost D-28, D-27)
 
