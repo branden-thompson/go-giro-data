@@ -59,6 +59,7 @@ PLAN may rename, never drop.
 | R-5.2 | It asks only for what an update needs, at no more than the host's stated cadence | NFR-3 (watchpost) | `TestAnUpdateAsksOnlyWhatItNeeds` |
 | R-5.3 | **Throttle behaviour (watchpost D-39):** live stations only, list refreshed at most daily; one update's requests in a burst of at most 40, at most hourly, at most 2 a minute sustained; a 429 stops the update and backs off 60 s doubling to 15 minutes; the last good field is kept with its age; a `Retry-After`, if ever sent, is honoured | watchpost D-38, D-39 | `TestAnUpdateNeverExceedsItsBurst`, `TestA429BacksOff`, `TestRetryAfterIsHonouredWhenSent` |
 | R-5.4 | **Pull (watchpost D-42):** the host asks for an update; the library starts no goroutines or timers; it holds the throttle state, and an update asked too soon is answered from the last good field with its age and the reason | watchpost D-42 | `TestTheLibraryStartsNoGoroutines`, `TestAnEarlyUpdateAnswersFromTheLastField` (a fake clock) |
+| R-5.5 | **The live-station list (watchpost D-51):** a shipped seed list (codes and positions only); a station dropped after 3 days with no data; one not-live station probed per update, in rotation; above 40 live, polled in rotation, those left out asked first next time; a cold start never probes in a burst | watchpost D-51 | `TestAColdStartUsesTheSeedWithoutABurst`, `TestADarkStationIsDroppedAfterThreeDays`, `TestOneProbePerUpdate`, `TestAboveFortyStationsRotate` |
 
 ## R-6 — Reproducible (G-R6; G-M2)
 

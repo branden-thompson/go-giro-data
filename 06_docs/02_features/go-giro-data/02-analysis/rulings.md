@@ -33,3 +33,4 @@ restated here; this log holds go-giro-data's own.
 | D-12 | 2026-10-06 | Restates watchpost D-47 | see watchpost D-47 | Both limits modelled: regular daytime absorption from the published method behind ITU-R P.533's absorption term; disturbance absorption from NOAA D-RAP after a terms check; every band status names the limit that closes it. |
 | D-13 | 2026-10-06 | Restates watchpost D-49 | see watchpost D-49 | G-M2, G-M3 and G-G1's targets are set from PLAN's dry run, each by its own ruling, before PLAN exits. |
 | D-14 | 2026-10-06 | Restates watchpost D-50 | see watchpost D-50 | Fields up to 24 h ahead, from the background carried forward with the current station corrections decaying toward climatology, labelled as forecasts with their age. |
+| D-15 | 2026-10-06 | Restates watchpost D-51 | see watchpost D-51 | Seed list of live stations (metadata only), dropped after 3 dark days, one rotation probe per update, rotation above 40, no burst probe on a cold start. |
