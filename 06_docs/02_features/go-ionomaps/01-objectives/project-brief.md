@@ -9,10 +9,13 @@ authority: HUM LEAD
 directives: FULL GIT; FULL DOCS; FULL REPORTS; FULL DIAGRAMS; FULL RCC; FULL PLAN; FULL TDD; FULL INST
 branch: feature/discover
 paired_with: "watchpost 0.19.0 (its host); go-tuiMaps v0.3.0 (draws the fields)"
-status: "APPROVED by the HUM LEAD 2026-10-05 (watchpost D-16). PS-G LOCKED (watchpost D-11). Metrics ruled (watchpost D-12), targets set in DISCOVER. Rulings: 02-analysis/rulings.md, with cross-project decisions in watchpost's log."
+status: "APPROVED by the HUM LEAD 2026-10-05 (watchpost D-16) as the intake record. PS-G LOCKED (watchpost D-11), amended (D-19). Where DISCOVER's rulings changed it, requirements.md is current and wins."
 ---
 
 # New Library | `go-ionomaps` (named `go-giro-data` until watchpost D-56)
+
+> **This is the intake brief, approved at watchpost D-16.** DISCOVER changed its scope and answered its
+> questions; **`requirements.md` is the current record and wins on any conflict.**
 
 **LEVEL-1; SEV-0; FULL GIT; FULL DOCS; FULL REPORTS; FULL DIAGRAMS; FULL RCC; FULL PLAN; FULL TDD; FULL INST**
 
@@ -59,7 +62,7 @@ in its brief) are folded in.
 - **G-R2 — Paths.** The answer for a path between two points at an hour and band, or what a host needs to compute it (GR-2).
 - **G-R3 — Fails out loud.** An input that stops, goes stale or changes format yields an error or an age, never a silently old or empty field (G-M4, GR-3).
 - **G-R4 — Terms travel with the data.** Each source's name and terms are readable by the host (G-M1, GR-4). The repository's NOTICE and README state them.
-- **G-R5 — The host owns the network.** No HTTP client of its own. The host supplies the fetcher (User-Agent, allowed hosts, timeout) (GR-5).
+- **G-R5 — The host owns the network.** No HTTP client of its own. The host supplies the fetcher (User-Agent, timeout; "allowed hosts" struck at watchpost A-12) (GR-5).
 - **G-R6 — Reproducible.** The recorded inputs for an hour regenerate the same field elsewhere (G-M2).
 - **G-R7 — Bounded cost.** CPU and memory per update are stated, measured and bounded (G-G1, GR-6).
 - **G-R8 — A reimplementation, traceable to its sources.** Every algorithm cites the published work it implements (papers, PyIRI, ITU-R recommendations). Nothing is copied from `arodland/prop`, which has no licence.
@@ -69,11 +72,11 @@ in its brief) are folded in.
 Normative in `problem-statement.md`:
 - G-M1 free to build on;
 - G-M2 reproducible;
-- G-M3 fidelity, against held-out ionosondes and KC2G's grid;
+- G-M3 fidelity, against held-out ionosondes, with climatology the baseline (watchpost D-23; the KC2G reference removed, D-52);
 - G-M4 fails out loud;
 - G-G1 compute cost, the guardrail.
 
-Targets are set in DISCOVER.
+Targets are set from PLAN's dry run, each by its own ruling, against floors set before it (watchpost D-49, D-75).
 
 ## Technical Constraints
 
@@ -81,18 +84,18 @@ Targets are set in DISCOVER.
 `arodland/prop` returns no licence from the GitHub API (watchpost research, line 17). The pipeline was
 read file by file for understanding during 0.18.0's research. That makes this a reimplementation from
 the published science, not a clean-room one in the strict sense, where those who read the code never
-write the code. DISCOVER rules on the protocol that keeps it traceable (G-R8).
+write the code. The protocol that keeps it traceable was ruled at watchpost D-53 (G-R8; requirements R-7).
 
 ### GC-2 — The data
 - GIRO is CC BY-NC-SA 4.0 (cite Reinisch & Galkin 2011).
 - Its public FastChar endpoint returned 429 on the first probe.
 - KC2G reads it through a private FTP account.
 - Live probes share the HUM LEAD's IP and are budgeted.
-- The MIT code licence does not relicense data. The NC and SA terms bind whoever redistributes it.
+- The MIT code licence does not relicense data. GIRO offers access "only for educational and non-commercial research purposes", which binds every copy that fetches, not only whoever redistributes (watchpost D-69, IS-5).
 
 ### GC-3 — The background model
 Checked in wave 1 (watchpost `wave1-findings.md`): IRI-2020's licence grants "use, copy, and modify" but no
-distribution, so its Fortran is never ported; NASA's PyIRI is MIT and is the reference ported (D-40). Its
+distribution, so its Fortran is never ported; NASA's PyIRI is MIT and is the reference ported (watchpost D-40). Its
 raw CCIR/URSI tables are not shipped; NRL's refits are, behind a swappable seam (watchpost D-43).
 
 ### GC-4 — Go, beside its hosts
@@ -125,7 +128,7 @@ are built in PLAN and BUILD, as go-tuiMaps' were.
 2. Path A / B / C: cost, fidelity, the licence of each block.
 3. GIRO access (FastChar, DIDBase, terms, rate).
 4. IRI and PyIRI licences and coefficient terms.
-5. The fidelity protocol: held-out stations, and the KC2G comparison.
+5. The fidelity protocol: held-out stations (the KC2G comparison was removed, watchpost D-52).
 6. The fetch seam and the API shape for watchpost and go-tuiMaps.
 
 **Stakeholders.** The HUM LEAD; watchpost (host); go-tuiMaps (renderer); KC2G; GIRO / UMass Lowell;

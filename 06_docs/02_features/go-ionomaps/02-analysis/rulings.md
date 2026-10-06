@@ -7,11 +7,11 @@ authority: HUM LEAD
 status: "LIVE — every ruling is written here the moment it is made."
 ---
 
-# go-giro-data — rulings
+# go-ionomaps (formerly go-giro-data) — rulings
 
 Recorded verbatim. A correction to a ruling is a new row, never an edit of an old one.
 
-go-giro-data is paired with watchpost 0.19.0 and go-tuiMaps v0.3.0. A decision that binds more than one
+go-ionomaps (named go-giro-data until watchpost D-56) is paired with watchpost 0.19.0 and go-tuiMaps v0.3.0. Rows written before the rename keep the old name. A decision that binds more than one
 of the three is written in watchpost's log
 (`watchpost/06_docs/02_features/propagation-overlays/02-analysis/rulings.md`, cited "watchpost D-n") and
 restated here; this log holds go-giro-data's own.
@@ -39,3 +39,6 @@ restated here; this log holds go-giro-data's own.
 | D-18 | 2026-10-06 | Restates watchpost D-54 | see watchpost D-54 | The library is renamed before v0.1.0; the name is its own ruling. |
 | D-19 | 2026-10-06 | Restates watchpost D-56 | see watchpost D-56 | **Renamed `go-ionomaps`** (repository, module `github.com/branden-thompson/go-ionomaps`, feature folder). Earlier rows keep the old name as they were written. |
 | D-20 | 2026-10-06 | Restates watchpost D-69 | see watchpost D-69 | G-M1 scored per layer: code and computed field free to build on; the live GIRO input non-commercial; a commercial user arranges their own access or runs on GloTEC and climatology alone; README and NOTICE say so. |
+| D-21 | 2026-10-06 | Restates watchpost D-73 | see watchpost D-73 | "Open" means the reference circuit: SSB voice at 100 W with simple antennas, about +10 dB signal-to-noise in 2.5 kHz; below D-RAP's 1 dB frequency a band is "disturbed", not closed; the daytime-absorption limit is computed for this circuit. |
+| D-22 | 2026-10-06 | Restates watchpost D-75 | see watchpost D-75 | Floors before the dry run: B on D must beat climatology on foF2 and MUF(3000), held out, in the US, else the library ships the GloTEC-and-climatology background alone; forecast error at +3 h and +12 h no worse than climatology, else hours ahead are cut. |
+| D-23 | 2026-10-06 | Restates watchpost D-76, D-78 | see watchpost D-76, D-78 | The host asks only when its Propagation mode is opened (no background updates); the library gains the "best bands" and "your frequency" answers; no history is recorded and there is no backfill in 0.19.0. |

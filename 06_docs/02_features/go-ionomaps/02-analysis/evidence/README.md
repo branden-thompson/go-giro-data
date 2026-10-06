@@ -13,20 +13,21 @@ this library's R-4.3). Re-running needs the data re-fetched under the throttle (
 | `pairs.py` | ionosonde vs GloTEC-derived vs PyIRI climatology, at grid times; F10.7 = 100 by default |
 | `loo.py` | path B (stations on climatology), leave-one-station-out |
 | `loo_hybrid.py` | path B on D (stations on GloTEC), leave-one-station-out |
-| `requests-2026-10-05.jsonl` | every request of the one-sitting run: time, URL, status, bytes, seconds, response headers (no reply bodies; GIRO's replies carry the requester's IP and are not kept) |
+| `subsets.py` | the figures `pairs.py` and `loo*.py` do not print: biases and quality subsets, B on D's MUF(3000) (3.97 and 3.22 MHz), and B on D by station |
+| `requests-2026-10-05.jsonl` | every request of the one-sitting run: time, URL, status, bytes, seconds, response headers, with the CDN's location headers (`X-Amz-Cf-Pop`, `X-Amz-Cf-Id`, `Via`) stripped (D-83); no reply bodies (GIRO's replies carry the requester's IP and are not kept) |
 
 **Environment.** Python 3.9 with PyIRI 0.0.4 (MIT), CCIR coefficients; the release 3.9 installs. The
 coefficients scored here are PyIRI's raw CCIR tables, not the NRL refits go-ionomaps will ship (watchpost
 D-43); the dry run scores those.
 
 **Reproducing the published numbers.** `pairs.py burst-2026-10-05 100` gives 566 pairs from 28 stations;
-then `loo.py 2026-10-05` and `loo_hybrid.py 2026-10-05`. Three blind reviewers reproduced every figure this
-way.
+then `loo.py 2026-10-05`, `loo_hybrid.py 2026-10-05` and `subsets.py 2026-10-05` give every figure wave 2 and
+the red team quote. Round 1's three reproducing reviewers and round 2's Docs reviewer matched them.
 
 **Their limits, beside every quote of them:**
 - one day;
 - one F10.7;
 - untuned kernels, chosen on the day they were scored;
 - the under-500-km bin is seven European stations;
-- the four US stations are all more than 1000 km from another;
-- foF2 only (the MUF(3000) score for B on D is the dry run's).
+- by station, held out: the mainland-US stations 0.51-0.81 MHz (AL945, EG931, IF843, MHJ45), the Pacific stations 1.2-1.8 (EA653, LL721, WA619, GU513);
+- MUF(3000) for B on D is a first score only (`subsets.py`: 3.97 MHz against GloTEC's 4.02); the dry run scores it properly.
