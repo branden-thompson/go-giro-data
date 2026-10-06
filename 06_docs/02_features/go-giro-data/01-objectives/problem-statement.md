@@ -4,7 +4,7 @@ date: 2026-10-05
 phase: DISCOVER (intake)
 sev: SEV-0
 authority: HUM LEAD
-status: "LOCKED (watchpost D-11), amended (watchpost D-19); metrics ruled (watchpost D-12), targets set in DISCOVER"
+status: "LOCKED (watchpost D-11), amended (watchpost D-19); metrics ruled (watchpost D-12), targets set from PLAN's dry run (watchpost D-49)"
 ---
 
 # Problem statement
@@ -32,7 +32,7 @@ DISCOVER writes for it. Its host's statements are PS-1 and PS-2, in
 
 ## Metrics (watchpost D-12)
 
-Targets are set in DISCOVER.
+Targets are set from PLAN's dry run, each by its own ruling (watchpost D-49).
 
 | # | Name · symbol | Type | Definition | Measured in |
 |---|---|---|---|---|
