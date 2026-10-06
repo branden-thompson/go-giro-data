@@ -91,8 +91,9 @@ write the code. DISCOVER rules on the protocol that keeps it traceable (G-R8).
 - The MIT code licence does not relicense data. The NC and SA terms bind whoever redistributes it.
 
 ### GC-3 — The background model
-KC2G's pipeline rests on IRI-2020 (Fortran), with NASA's PyIRI as a cleaner reference. Their licences,
-and the coefficient files' terms, are unverified. The MIT ruling (D-2) was made subject to that check.
+Checked in wave 1 (watchpost `wave1-findings.md`): IRI-2020's licence grants "use, copy, and modify" but no
+distribution, so its Fortran is never ported; NASA's PyIRI is MIT and is the reference ported (D-40). Its
+raw CCIR/URSI tables are not shipped; NRL's refits are, behind a swappable seam (watchpost D-43).
 
 ### GC-4 — Go, beside its hosts
 watchpost and go-tuiMaps are `go 1.25.13`, and so is this module (`go.mod`). Module path:
@@ -104,10 +105,10 @@ are built in PLAN and BUILD, as go-tuiMaps' were.
 
 ## Other Considerations
 
-- **Path A, B or C** is DISCOVER's RCC (watchpost research §Options):
-  - A: consume KC2G's grid, with permission. G-M2 is then KC2G's to meet, not ours.
-  - B: GIRO plus our own assimilation.
-  - C: the full reimplementation, including the background model.
+- **The path is B on D** (watchpost D-40): GIRO station residuals assimilated over a background derived from
+  NOAA GloTEC, with a PyIRI-port climatology as the fallback. Path A (KC2G's grid) and A′ (GIRO's IRTAM
+  coefficients) were dropped at watchpost D-20; path C, the full reimplementation, is absorbed into B on D,
+  whose fallback is that reimplementation's background.
 - **Writing to KC2G** is on the HUM LEAD's clock (watchpost brief, Other Considerations).
 - **The name.** The library was `go-giro-data` until watchpost D-54 and D-56 renamed it `go-ionomaps` before v0.1.0: two of its three inputs are not GIRO, and it publishes derived maps, never GIRO's data.
 - **Standing rules:**
@@ -133,15 +134,15 @@ NASA (PyIRI).
 **Risk signals**
 - **RK-G1:** no-licence reference (GC-1).
 - **RK-G2:** NC/SA data terms and rate limits (GC-2).
-- **RK-G3:** an unverified background-model licence (GC-3).
+- **RK-G3:** the background model's licence (GC-3): resolved; PyIRI is MIT, IRI is not ported, NRL's refits ship behind a seam.
 - **RK-G4:** a fit that grades itself (G-M3).
 - **RK-G5:** compute cost (G-G1).
 
 **Open questions**
-- **OQ-G1** Path A, B or C?
-- **OQ-G2** May any GIRO-derived output be cached or committed (fixtures), and under what notice?
-- **OQ-G3** Is the API pull (host asks) or push (library schedules)?
-- **OQ-G4** Does the library keep history, or does the host (watchpost's history store, C-7)?
+- **OQ-G1** Path A, B or C? **Answered:** B on D (watchpost D-40).
+- **OQ-G2** May any GIRO-derived output be cached or committed, and under what notice? **Answered:** the computed field is a derivative product; raw readings are never committed or cached (watchpost D-41, R-4.3).
+- **OQ-G3** Pull or push? **Answered:** pull, the throttle inside the library (watchpost D-42).
+- **OQ-G4** Who keeps history? **Answered:** the host (watchpost D-31, D-62); the library keeps only the last good field.
 
 ## Completeness Check
 

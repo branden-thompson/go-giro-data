@@ -1,0 +1,28 @@
+go-ionomaps
+Copyright (c) 2026 Branden Thompson. The code is licensed under the MIT licence (LICENSE).
+The MIT licence covers this repository's code only. It does not relicense any data.
+
+Sources the library reads, or will read, and their terms:
+
+1. GIRO, the Global Ionospheric Radio Observatory (Lowell GIRO Data Center, UMass Lowell)
+   Station readings (foF2, M(3000)F2, hmF2), fetched by the host at run time; never stored in this
+   repository. Licence: CC BY-NC-SA 4.0. Access is offered "only for educational and non-commercial
+   research purposes" (giro.uml.edu/didbase/RulesOfTheRoad.html).
+   Cite: Reinisch, B. W., and I. A. Galkin, Global ionospheric radio observatory (GIRO),
+   Earth, Planets and Space, 63, 377-381, doi:10.5047/eps.2011.03.001, 2011.
+   Acknowledge each station's data provider.
+   A field computed from these readings is treated as a substantially derivative product, which GIRO's
+   rules leave unrestricted. That reading is this project's own and has not been confirmed by GIRO.
+
+2. NOAA Space Weather Prediction Center: GloTEC (NmF2, hmF2) and D-RAP (D-region absorption)
+   Public domain (weather.gov/disclaimer). No endorsement by NOAA or the NWS is implied.
+
+3. PyIRI (NASA / U.S. Naval Research Laboratory), MIT licence, Copyright (c) 2023 victoriyaforsythe.
+   The climatology is a Go port of PyIRI's method. The spherical-harmonic coefficient tables shipped
+   (when they are) are NRL's refits from PyIRI. They were fitted to the CCIR and URSI foF2 and M(3000)F2
+   maps, whose own provenance is CCIR/ITU and URSI; the raw CCIR/URSI tables are not shipped.
+   Cite: Forsythe, V. V., et al. (2024), PyIRI: whole-globe approach to the International Reference
+   Ionosphere modeling implemented in Python, Space Weather, 22, doi:10.1029/2023SW003739.
+
+4. ITU-R P.533 and P.1239: methods implemented from the published recommendations; no recommendation
+   text or tables are reproduced.
