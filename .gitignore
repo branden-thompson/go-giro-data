@@ -1,0 +1,24 @@
+# Build output - every binary goes to ./dist/
+dist/
+
+# Logs
+*.log
+
+# Go workspace, test and profiling output
+go.work
+go.work.sum
+coverage.out
+*.test
+*.prof
+
+# OS and editor
+.DS_Store
+
+# Local development harness - not part of the public project
+.claude/
+.a2dh/
+_a2dh/
+.a2dh*
+AGENTS.md
+CLAUDE.md
+.github/copilot-instructions.md

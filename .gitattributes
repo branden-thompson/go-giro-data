@@ -1,0 +1,6 @@
+# Text sources are kept at LF on every platform.
+*.go text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+go.mod text eol=lf
+go.sum text eol=lf
