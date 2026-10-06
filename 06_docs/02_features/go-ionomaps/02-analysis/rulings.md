@@ -1,5 +1,5 @@
 ---
-title: "go-giro-data — HUM LEAD rulings"
+title: "go-ionomaps (formerly go-giro-data) — HUM LEAD rulings"
 date: 2026-10-05
 phase: DISCOVER (intake)
 sev: SEV-0
@@ -37,3 +37,4 @@ restated here; this log holds go-giro-data's own.
 | D-16 | 2026-10-06 | Restates watchpost D-52 | see watchpost D-52 | G-M3 scores against held-out ionosondes only; the KC2G reference is removed. |
 | D-17 | 2026-10-06 | Restates watchpost D-53 | see watchpost D-53 | No reopening of `arodland/prop`; papers and PyIRI only; per-function citations; a provenance table in PLAN; the record says truthfully that 0.18.0's research read it. |
 | D-18 | 2026-10-06 | Restates watchpost D-54 | see watchpost D-54 | The library is renamed before v0.1.0; the name is its own ruling. |
+| D-19 | 2026-10-06 | Restates watchpost D-56 | see watchpost D-56 | **Renamed `go-ionomaps`** (repository, module `github.com/branden-thompson/go-ionomaps`, feature folder). Earlier rows keep the old name as they were written. |

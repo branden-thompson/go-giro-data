@@ -1,5 +1,5 @@
 ---
-title: "go-giro-data — problem statement"
+title: "go-ionomaps — problem statement"
 date: 2026-10-05
 phase: DISCOVER (intake)
 sev: SEV-0
@@ -9,7 +9,7 @@ status: "LOCKED (watchpost D-11), amended (watchpost D-19); metrics ruled (watch
 
 # Problem statement
 
-go-giro-data has a statement of its own (watchpost D-10), beside the host requirements watchpost's
+go-ionomaps (named go-giro-data until watchpost D-56) has a statement of its own (watchpost D-10), beside the host requirements watchpost's
 DISCOVER writes for it. Its host's statements are PS-1 and PS-2, in
 `watchpost/06_docs/02_features/propagation-overlays/01-objectives/problem-statement.md`.
 

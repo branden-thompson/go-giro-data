@@ -1,5 +1,5 @@
 ---
-title: "go-giro-data — REQUIREMENTS"
+title: "go-ionomaps — REQUIREMENTS"
 date: 2026-10-06
 phase: DISCOVER
 sev: SEV-0

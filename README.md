@@ -1,4 +1,4 @@
-# go-giro-data
+# go-ionomaps
 
 Ionospheric maps for Go programs: maximum usable frequency (MUF) and the F2 layer's critical
 frequency (foF2), as fields a terminal map can draw.

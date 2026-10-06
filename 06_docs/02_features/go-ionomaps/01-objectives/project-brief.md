@@ -1,5 +1,5 @@
 ---
-title: "go-giro-data — PROJECT BRIEF"
+title: "go-ionomaps — PROJECT BRIEF"
 date: 2026-10-05
 phase: DISCOVER (intake)
 report_template: project-brief v1.1.0
@@ -12,7 +12,7 @@ paired_with: "watchpost 0.19.0 (its host); go-tuiMaps v0.3.0 (draws the fields)"
 status: "APPROVED by the HUM LEAD 2026-10-05 (watchpost D-16). PS-G LOCKED (watchpost D-11). Metrics ruled (watchpost D-12), targets set in DISCOVER. Rulings: 02-analysis/rulings.md, with cross-project decisions in watchpost's log."
 ---
 
-# New Library | `go-giro-data`
+# New Library | `go-ionomaps` (named `go-giro-data` until watchpost D-56)
 
 **LEVEL-1; SEV-0; FULL GIT; FULL DOCS; FULL REPORTS; FULL DIAGRAMS; FULL RCC; FULL PLAN; FULL TDD; FULL INST**
 
@@ -96,7 +96,7 @@ and the coefficient files' terms, are unverified. The MIT ruling (D-2) was made 
 
 ### GC-4 — Go, beside its hosts
 watchpost and go-tuiMaps are `go 1.25.13`, and so is this module (`go.mod`). Module path:
-`github.com/branden-thompson/go-giro-data`.
+`github.com/branden-thompson/go-ionomaps` (renamed at watchpost D-56).
 
 ### GC-5 — Gates do not exist yet
 A2DH's P10 check fails closed on an empty module (no packages). The gate script, CI and the docs lane
@@ -109,7 +109,7 @@ are built in PLAN and BUILD, as go-tuiMaps' were.
   - B: GIRO plus our own assimilation.
   - C: the full reimplementation, including the background model.
 - **Writing to KC2G** is on the HUM LEAD's clock (watchpost brief, Other Considerations).
-- **The repository name says GIRO.** If DISCOVER picks other sources, the name still holds for the data family. A rename is cheap before v0.1.0 and expensive after.
+- **The name.** The library was `go-giro-data` until watchpost D-54 and D-56 renamed it `go-ionomaps` before v0.1.0: two of its three inputs are not GIRO, and it publishes derived maps, never GIRO's data.
 - **Standing rules:**
   - rulings one at a time, minor items as A-n rows under watchpost D-13;
   - TDD;
