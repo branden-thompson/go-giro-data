@@ -4,7 +4,7 @@ date: 2026-10-06
 phase: DISCOVER
 sev: SEV-0
 authority: HUM LEAD
-status: "DRAFT — for approval at the DISCOVER gate. The path is B on D (watchpost D-40): GIRO station residuals assimilated over a GloTEC-derived background, a PyIRI-port climatology as the fallback. Revised after the DISCOVER-exit red team, round 1 (watchpost 08-reports/red-team-discover.md)."
+status: "APPROVED at the DISCOVER gate (watchpost D-84), normative. The path is B on D (watchpost D-40): GIRO station residuals assimilated over a GloTEC-derived background, a PyIRI-port climatology as the fallback. Revised after the DISCOVER-exit red team, round 1 (watchpost 08-reports/red-team-discover.md)."
 ---
 
 # Requirements
