@@ -38,7 +38,7 @@ Targets are set from PLAN's dry run, each by its own ruling (watchpost D-49).
 |---|---|---|---|---|
 | G-M1 | Free to build on · F | compliance | every input the library reads, and every output it publishes, has recorded terms that permit the use; a test holds the list of sources and their terms | sources without permitting terms (target 0) |
 | G-M2 | Reproducible · P | reproducibility | from the recorded inputs for one hour, another machine regenerates the same field | largest difference, MHz |
-| G-M3 | Fidelity · Φ | accuracy | foF2 and MUF(3000) against ionosonde readings held out of the fit (leave-one-out); KC2G's grid for the same hours as a second reference | RMS error, MHz |
+| G-M3 | Fidelity · Φ | accuracy | foF2 and MUF(3000) against ionosonde readings held out of the fit (leave-one-out), with the IRI climatology as the baseline to beat (watchpost D-23); the KC2G reference was removed (watchpost D-52) | RMS error, MHz |
 | G-M4 | Fails out loud · W | honesty | when an input stops, goes stale or changes format, the library returns an error or an age, never a silently old or empty field | share of injected faults reported (target 100%) |
 | G-G1 | Compute cost · K | guardrail (watchpost issue #25) | CPU seconds and peak memory for one map update on a reference machine | CPU s; MB |
 

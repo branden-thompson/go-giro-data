@@ -34,3 +34,6 @@ restated here; this log holds go-giro-data's own.
 | D-13 | 2026-10-06 | Restates watchpost D-49 | see watchpost D-49 | G-M2, G-M3 and G-G1's targets are set from PLAN's dry run, each by its own ruling, before PLAN exits. |
 | D-14 | 2026-10-06 | Restates watchpost D-50 | see watchpost D-50 | Fields up to 24 h ahead, from the background carried forward with the current station corrections decaying toward climatology, labelled as forecasts with their age. |
 | D-15 | 2026-10-06 | Restates watchpost D-51 | see watchpost D-51 | Seed list of live stations (metadata only), dropped after 3 dark days, one rotation probe per update, rotation above 40, no burst probe on a cold start. |
+| D-16 | 2026-10-06 | Restates watchpost D-52 | see watchpost D-52 | G-M3 scores against held-out ionosondes only; the KC2G reference is removed. |
+| D-17 | 2026-10-06 | Restates watchpost D-53 | see watchpost D-53 | No reopening of `arodland/prop`; papers and PyIRI only; per-function citations; a provenance table in PLAN; the record says truthfully that 0.18.0's research read it. |
+| D-18 | 2026-10-06 | Restates watchpost D-54 | see watchpost D-54 | The library is renamed before v0.1.0; the name is its own ruling. |
