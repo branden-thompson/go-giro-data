@@ -30,6 +30,9 @@ PLAN may rename, never drop.
 | R-2.1 | foF2 and MUF(3000) at any point, from the field | D-28 (the readout), D-37 (the centre) | `TestAReadingAtAPointComesFromTheField` |
 | R-2.2 | For a path between two points at an hour: whether each amateur band 160 m to 10 m is expected open, with the near-vertical case (short paths) answered from foF2 | GR-2; D-24, D-30 | `TestEachBandsStatusForAPath`, `TestShortPathsUseFoF2` |
 | R-2.3 | The point and path calls serve one place or many, so a future shortlist (watchpost D-27) needs no new call | D-27 | `TestReadingsForManyPointsInOneCall` |
+| R-2.4 | **The lower limit (watchpost D-47):** regular daytime D-layer absorption for each band and path, from the published method behind ITU-R P.533's absorption term (solar zenith angle, frequency, solar activity), implemented from the method, never copied text or tables | D-47 | `TestDaytimeAbsorptionClosesTheLowBands`, its worked values cited |
+| R-2.5 | Disturbance absorption (flares, polar-cap events) from NOAA SWPC's D-RAP, under D-39's throttle, after its access and terms are checked | D-47 | `TestADisturbanceClosesTheBandsItCovers` |
+| R-2.6 | Each band's status is one of: open (between the limits), above the upper limit, absorbed, or no data, and says which limit decided it | D-47; AX-F | `TestEveryStatusNamesItsLimit` |
 
 ## R-3 — Fails out loud (G-R3, GR-3; G-M4)
 
