@@ -53,6 +53,7 @@ PLAN may rename, never drop.
 | R-5.1 | The library opens no network connection of its own; the host supplies the fetcher (User-Agent, allowed hosts, timeout) | GR-5; watchpost 0.18.0 HR-6's lesson | `TestTheLibraryOpensNoConnectionOfItsOwn` |
 | R-5.2 | It asks only for what an update needs, at no more than the host's stated cadence | NFR-3 (watchpost) | `TestAnUpdateAsksOnlyWhatItNeeds` |
 | R-5.3 | **Throttle behaviour (watchpost D-39):** live stations only, list refreshed at most daily; one update's requests in a burst of at most 40, at most hourly, at most 2 a minute sustained; a 429 stops the update and backs off 60 s doubling to 15 minutes; the last good field is kept with its age; a `Retry-After`, if ever sent, is honoured | watchpost D-38, D-39 | `TestAnUpdateNeverExceedsItsBurst`, `TestA429BacksOff`, `TestRetryAfterIsHonouredWhenSent` |
+| R-5.4 | **Pull (watchpost D-42):** the host asks for an update; the library starts no goroutines or timers; it holds the throttle state, and an update asked too soon is answered from the last good field with its age and the reason | watchpost D-42 | `TestTheLibraryStartsNoGoroutines`, `TestAnEarlyUpdateAnswersFromTheLastField` (a fake clock) |
 
 ## R-6 — Reproducible (G-R6; G-M2)
 
