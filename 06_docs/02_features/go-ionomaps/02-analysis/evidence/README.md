@@ -14,6 +14,8 @@ this library's R-4.3). Re-running needs the data re-fetched under the throttle (
 | `loo.py` | path B (stations on climatology), leave-one-station-out |
 | `loo_hybrid.py` | path B on D (stations on GloTEC), leave-one-station-out |
 | `subsets.py` | the figures `pairs.py` and `loo*.py` do not print: biases and quality subsets, B on D's MUF(3000) (3.97 and 3.22 MHz), and B on D by station |
+| `dry_fetch.py` | PLAN's dry-run fetch (watchpost FR-10.6): a week of GIRO readings for the live stations in one burst, then 3-hourly GloTEC grids, one every 10 minutes (D-39) |
+| `week.py` | PLAN's dry run, scored: climatologies (raw and refit, two F10.7 rules), GloTEC, B on D and B on C held out, by region, distance and station, with signed bias; kernels tuned on the first three days, scored on the rest; the forecast at +3 h and +12 h. Runs under PyIRI 0.1.7 (Python 3.12, watchpost D-86) |
 | `requests-2026-10-05.jsonl` | every request of the one-sitting run: time, URL, status, bytes, seconds, response headers, with the CDN's location headers (`X-Amz-Cf-Pop`, `X-Amz-Cf-Id`, `Via`) stripped (D-83); no reply bodies (GIRO's replies carry the requester's IP and are not kept) |
 
 **Environment.** Python 3.9 with PyIRI 0.0.4 (MIT), CCIR coefficients; the release 3.9 installs. The
