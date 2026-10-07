@@ -47,3 +47,14 @@ Anti-solution check:
 - G-M2: PS-G's "able to check". A service nobody else can rerun fails.
 - G-M3: a climatology that never changes fails. Held-out readings keep the fit from grading itself.
 - G-M4: PS-G's "blank or wrong without warning".
+
+## Targets (watchpost D-49)
+
+Each ruled from PLAN's dry run, against watchpost D-75's floors, and listed here as it is ruled.
+
+| Metric | Target | Ruling |
+|---|---|---|
+| G-M1 | every source's terms recorded and tested (pass or fail) | watchpost D-12, D-69 |
+| G-M2 | bit-identical on the same OS and architecture; at most 0.001 MHz apart across amd64 and arm64 | watchpost D-97 |
+| G-M4 | 100% of injected faults reported | watchpost D-12 |
+| G-G1 | a cold first open (25 hours, 2°) ≤ 0.5 s CPU; a refresh ≤ 50 ms; peak memory ≤ 20 MB (Apple M5 Pro) | watchpost D-98 |

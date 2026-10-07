@@ -94,7 +94,7 @@ may rename, never drop.
 
 | # | Requirement | Source | Instrument |
 |---|---|---|---|
-| R-8.1 | One update's CPU and peak memory are measured and within G-G1's target (set by the dry run, D-49); it recomputes only on new data | G-G1; D-49 | a benchmark, recorded |
+| R-8.1 | One update's CPU and peak memory are measured and within G-G1's target (D-98: a cold first open of 25 hours at 2° at most 0.5 s, a refresh at most 50 ms, peak memory at most 20 MB, on an Apple M5 Pro); it recomputes only on new data, and keeps the day's climatology hours rather than recomputing them | G-G1; D-49, D-98 | a benchmark, recorded, failing above the target |
 | R-8.2 | GeoJSON is decoded into typed structures, not generic maps (measured once by the round-1 Performance reviewer on an Apple M5 Pro, one GloTEC grid: 5.1 ms and 0.74 MB against 10.5 ms, 7.6 MB and 192k allocations; re-measured in PLAN) | PF (3) | `BenchmarkGloTECDecode` |
 
 ## R-9 — The path's own requirements (B on D, D-40)

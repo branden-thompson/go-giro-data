@@ -120,9 +120,9 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 
 | # | Task | Test first |
 |---|---|---|
-| G10.1 | Reproducibility on synthetic inputs (G-M2) | `TestAFieldIsReproducedFromItsInputs` |
+| G10.1 | Reproducibility on synthetic inputs (G-M2, D-97: bit-identical on one architecture, at most 0.001 MHz across amd64 and arm64, both CI runners) | `TestAFieldIsReproducedFromItsInputs`, a cross-runner comparison of the same inputs' field |
 | G10.2 | Fault injection: every input stopped, stale, truncated, reformatted (G-M4) | the fault table, each case reported, never a silent field |
-| G10.3 | Cost per update (G-G1) | a benchmark at 2° and 1°, recorded |
+| G10.3 | Cost per update (G-G1, D-98: cold open ≤ 0.5 s, refresh ≤ 50 ms, peak ≤ 20 MB at 2°); the day's quasi-dipole coordinates and climatology hours cached, not a Legendre cache (61 MB in the dry run's spike) | a benchmark at 2° and 1°, recorded, failing above the target at 2° |
 | G10.4 | The G-M3 instrument: leave-one-station-out over recorded inputs kept outside the tree, failing when they are missing | the Go replica of the dry run's `loo_hybrid.py` agrees with it on the dry run's data |
 
 ## Release
