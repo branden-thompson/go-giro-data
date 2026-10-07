@@ -29,7 +29,7 @@ may rename, never drop.
 |---|---|---|---|
 | R-1.1 | MUF(3000) and foF2 over the globe for a UTC hour, on a grid a go-tuiMaps host can hand in directly (outer edges -180..180, -90..90; no antimeridian crossing), 2° by default, 1° as an option. MUF(3000) is foF2 × M(3000)F2 by definition | G-R1 | `TestAGlobalFieldIsAValidTuimapsGrid`, `TestTheGridStepIsTheHostsChoice` |
 | R-1.2 | Every field carries the time it is valid for, the time it was computed, and its sources | G-R1, G-R4 | `TestAFieldSaysWhenAndFromWhat` |
-| R-1.3 | **Hours ahead (D-50):** fields for each hour up to 24 h ahead, from the background carried forward with the current station corrections decaying toward climatology; each labelled a forecast, with the time it was made. **Floor (D-75):** forecast error at +3 h and +12 h no worse than climatology, or hours ahead are cut from 0.19.0 | D-50, D-75 | `TestForecastHoursDecayTowardClimatology`, `TestAForecastSaysItIsOne`; the forecast metric (D-75) in the dry run |
+| R-1.3 | **Hours ahead (D-50, D-103):** fields for each hour up to 24 h ahead, each half the current method's field (D-101) at the same hour a day before and half the climatology for that hour; each labelled a forecast, with the time it was made and **its typical error as the library has measured it** (so the host can say its confidence). **Floor (D-75):** forecast error at +3 h and +12 h no worse than climatology; met on PLAN's week (+12 h, US foF2 0.72 against 0.76 MHz), re-checked on recorded inputs in BUILD (G10.4), and hours ahead are cut if it fails | D-50, D-75, D-103 | `TestForecastHoursBlendYesterdayAndClimatology`, `TestAForecastSaysItIsOne`, `TestAForecastCarriesItsTypicalError`; the forecast metric (D-75) |
 
 ## R-2 — Readings at a point and along a path (GR-2; D-27, D-28, D-37, D-47)
 
@@ -102,8 +102,8 @@ may rename, never drop.
 | # | Requirement | Role | Instrument |
 |---|---|---|---|
 | R-9.1 | A climatology: PyIRI's method, ported (foF2 and M(3000)F2, whole globe, every hour), on the coefficients D-43 ships | the fallback when GloTEC is missing or stale. (The D-23 baseline is an offline measurement and needs no port, CQ-C1) | `TestTheFallbackMatchesPyIRI` (against PyIRI's published outputs) |
-| R-9.2 | Spatial assimilation on the sphere with a valid kernel (Gneiting 2013) of station residuals (ionosonde minus background) **for both foF2 and M(3000)F2**, so MUF(3000) gains from the stations as foF2 does (B on D's MUF error is dominated by M(3000)F2: 3.97 MHz against GloTEC's 4.02, 3.22 with measured M(3000)F2; CQ-E2) | the assimilation | `TestTheKernelIsValidOnTheSphere`, G-M3 for foF2 and MUF(3000) |
-| R-9.3 | foF2 and M(3000)F2 derived from GloTEC's NmF2 and hmF2 | the background | `TestFoF2FromNmF2`, G-M3 |
+| R-9.2 | Spatial assimilation on the sphere with a valid kernel (Gneiting 2013) of station residuals (ionosonde minus background) **for both foF2 and M(3000)F2**, so MUF(3000) gains from the stations as foF2 does. **The hybrid (D-101):** foF2's residuals are taken over GloTEC, M(3000)F2's over the climatology (the week: MUF 3.26 MHz held out, against 3.41 with both over GloTEC) | the assimilation | `TestTheKernelIsValidOnTheSphere`, G-M3 for foF2 and MUF(3000) |
+| R-9.3 | foF2 derived from GloTEC's NmF2, the background for foF2; M(3000)F2's background is the climatology (D-101); GloTEC's hmF2 is not used | the background | `TestFoF2FromNmF2`, `TestM3000BackgroundIsTheClimatology`, G-M3 |
 | R-9.4 | GIRO readings under D-39's throttle, with confidence scores used | the assimilation's input | `TestLowConfidenceReadingsAreDropped` |
 
 **Moved to a PLAN question (CQ-N1):** an effective sunspot number fitted from measurements (Secan & Wilkinson

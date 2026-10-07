@@ -49,7 +49,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G1 | Public types, terms, the fetcher contract | R-1.2, R-4.1, R-5.1 | G0 |
 | G2 | Parsers: GIRO, GloTEC, D-RAP, the scales, with fuzzers and physical ranges | R-3.1 to R-3.4, R-8.2, R-2.10 | G1 |
 | G3 | The climatology: the PyIRI port, the tables seam, the refits | R-9.1, R-4.4, R-7.3 | G1 |
-| G4 | The background: GloTEC fields, the fallback named | R-9.3, R-3.2 | G2, G3 |
+| G4 | The background: GloTEC's foF2, the climatology's M(3000)F2 (D-101), the fallback named | R-9.3, R-3.2 | G2, G3 |
 | G5 | Assimilation of foF2 and M(3000)F2 | R-9.2, R-9.4 | G4 |
 | G6 | Limits and statuses: path MUF, absorption, disturbed | R-2.2, R-2.4 to R-2.7 | G5 |
 | G7 | Answers: bands, path, reach, many points | R-2.1, R-2.3, R-2.8, R-2.9 | G6 |
@@ -96,14 +96,14 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 
 | # | Task | Test first |
 |---|---|---|
-| G4.1 | GloTEC background; climatology when GloTEC is missing, named | `TestTheFallbackIsUsedAndNamed` |
+| G4.1 | foF2 over GloTEC, M(3000)F2 over the climatology (D-101); climatology for foF2 when GloTEC is missing, named | `TestTheFallbackIsUsedAndNamed`, `TestM3000BackgroundIsTheClimatology` |
 | G5.1 | The GP on the sphere for foF2 and M(3000)F2 residuals; kernel valid on the sphere | `TestTheKernelIsValidOnTheSphere` (positive-definite on random station sets), `TestAResidualAtAStationIsRecovered` |
 | G6.1 | P.533 path MUF | `TestPathMUFFollowsP533` against the recommendation's worked values |
 | G6.2 | Daytime absorption for the reference circuit | `TestDaytimeAbsorptionClosesTheLowBands` (80 m absorbed at local noon, open at night, mid-latitude) |
 | G6.3 | D-RAP disturbed | `TestADisturbanceMarksTheBandsItCovers` |
 | G6.4 | Statuses naming their limit | `TestEveryStatusNamesItsLimit` |
 | G7.1 | `Bands`, `Path`, `Reach`, many points in one call | `TestBestBandsForAnArea`, `TestTheDaysOpenHours`, `TestAFrequencysReachIsAField`, `TestTheSkipZoneIsReturned`, `TestReadingsForManyPointsInOneCall` |
-| G8.1 | Forecast hours | `TestForecastHoursDecayTowardClimatology`, `TestAForecastSaysItIsOne` |
+| G8.1 | Forecast hours: yesterday's field and the climatology, half and half, with each hour's typical error (D-103) | `TestForecastHoursBlendYesterdayAndClimatology`, `TestAForecastSaysItIsOne`, `TestAForecastCarriesItsTypicalError` |
 
 ## G9 — Throttle, stations, update
 

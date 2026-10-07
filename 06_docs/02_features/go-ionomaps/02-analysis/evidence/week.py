@@ -395,3 +395,24 @@ if len(sys.argv) > 3:   # DISTURBED days, comma-separated YYYY-MM-DD (from NOAA'
                 fo, mf = errors(p, ks); fu, mu = errors(p, us)
                 print(f"   +{h:2d} h {label:13s} {name:9s} n={len(ks):3d}  all {rms(fo):.2f} | {rms(mf):.2f}   US (n={len(us)}) {rms(fu):.2f} | {rms(mu):.2f}")
 
+# ---------- skill by lead: does today's departure from climatology last? ----------
+print("\n9. By lead, test days, decay from now (tau tuned per lead) against climatology; US foF2 | MUF, then all")
+bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")} if len(sys.argv) > 3 else set()
+for h in (0, 3, 6, 9, 12, 24):
+    if h == 0:
+        cands = (("now (hybrid)", HY), ("climatology", C))
+    else:
+        best = None
+        for tau in (3, 6, 12, 24, 48, math.inf):
+            p = forecast(h, tau, HY)
+            fo, mf = errors(p, [k for k in TUNE if k in p])
+            s = rms(fo) + rms(mf) / 3.0
+            if best is None or s < best[0]:
+                best = (s, tau)
+        cands = ((f"decay tau={best[1]}", forecast(h, best[1], HY)), ("climatology", forecast(h, 0)))
+    common = [k for k in TEST if all(k in p for _, p in cands) and k[0].date() not in bad]
+    for label, p in cands:
+        us = [k for k in common if mainland_us(k[1])]
+        fo, mf = errors(p, common); fu, mu = errors(p, us)
+        print(f"   +{h:2d} h quiet {label:18s} US (n={len(us):3d}) {rms(fu):.2f} | {rms(mu):.2f}   all (n={len(common):3d}) {rms(fo):.2f} | {rms(mf):.2f}")
+
