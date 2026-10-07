@@ -61,7 +61,7 @@ may rename, never drop.
 |---|---|---|---|
 | R-4.1 | Each source's name, terms and required citation are readable by the host, from a static list (never text parsed from replies), so it can credit them | G-M1; IS-3 | `TestEverySourceCarriesItsTerms` (G-M1's list) |
 | R-4.2 | The README and NOTICE state every source's terms; the MIT code licence does not relicense data; **the live GIRO input is for non-commercial use** (GIRO: "only for educational and non-commercial research purposes"), so a commercial user arranges their own access or runs on the GloTEC and climatology background alone; a computed field is treated as a substantially derivative product (D-41, D-69) | G-R4; D-2, D-41, D-69 | `TestTheNoticeNamesEverySource` |
-| R-4.3 | No third-party data is committed except as ruled: no GIRO readings ever; of coefficient tables, only NRL's spherical-harmonic refits from PyIRI (MIT; Forsythe et al. 2024; their CCIR/URSI lineage stated in the NOTICE), never the raw CCIR/URSI tables (D-43). The check scans **file content** (a FastChar header, URSI codes beside confidence columns), not only an allowed list; a change to the allowed list needs a ruling | D-31, D-43; CQ-V3 | `TestNoThirdPartyDataIsCommitted` |
+| R-4.3 | No third-party data is committed except as ruled: no GIRO readings ever; of coefficient tables, only NRL's spherical-harmonic refits from PyIRI (MIT; Forsythe et al. 2024; their CCIR/URSI lineage stated in the NOTICE), never the raw CCIR/URSI tables (D-43); IGRF-14's coefficients (IAGA), from which the library's own magnetic-coordinate table is generated (D-107); and, as a test oracle only, a sample of PyIRI's `Apex.nc` coordinates (MIT, D-107). The check scans **file content** (a FastChar header, URSI codes beside confidence columns), not only an allowed list; a change to the allowed list needs a ruling | D-31, D-43; CQ-V3 | `TestNoThirdPartyDataIsCommitted` |
 | R-4.4 | **The coefficients sit behind a swappable seam** (D-43): the climatology reads its tables through one interface, so they can be removed or replaced without touching the rest | D-43 | `TestTheClimatologyRunsOnAnySuppliedTables` |
 
 ## R-5 — The host owns the network (G-R5, GR-5)
@@ -107,9 +107,11 @@ may rename, never drop.
 | R-9.4 | GIRO readings under D-39's throttle, with confidence scores used | the assimilation's input | `TestLowConfidenceReadingsAreDropped` |
 | R-9.5 | **The climatology's solar input (D-104):** the mean of NOAA SWPC's daily observed F10.7 over the 30 days before the day, from `text/daily-solar-indices.txt` (public domain), fetched at most once a day with validators; a missing day is skipped; when the file is missing the last mean held is used and its age said; the value used is carried in the snapshot | D-104 | `TestTheF107RuleIsTheThirtyDayMean`, `TestAMissingSolarFileUsesTheLastMeanWithItsAge`, `FuzzSolarIndicesParser` |
 | R-9.6 | **The offset (D-105):** each update carries the live offset (the mean of station foF2 minus GloTEC foF2) and a typical offset, seeded at −0.5 MHz and refined by the object's own updates (nothing persisted), with their spread; with no station readings held, the host may ask for GloTEC corrected by the typical offset, named in the snapshot | D-105 | `TestTheLiveOffsetIsCarried`, `TestTheTypicalOffsetLearnsFromUpdates`, `TestTheNoReadingsCorrectionIsNamed` |
+| R-9.7 | **Magnetic coordinates of our own (D-107):** the climatology's quasi-dipole latitude and magnetic local time come from a table the library generates at build time from IGRF-14 (field lines traced to the apex; Richmond 1995; MLT per Laundal & Richmond 2017). It agrees with a committed sample of PyIRI's `Apex.nc` within a tolerance set in BUILD. A test fails within a set margin of IGRF-14's last valid year. Past that year the snapshot says the coordinates are extrapolated | D-107 | `TestOurCoordinatesAgreeWithApex`, `TestTheMagneticModelIsNotNearItsEnd`, `TestExtrapolatedCoordinatesAreSaid`, `TestIGRFMatchesItsPublishedValues` |
 
-**Moved to a PLAN question (CQ-N1):** an effective sunspot number fitted from measurements (Secan & Wilkinson
-1997), if the dry run shows it improves the fallback.
+**Not in v0.1.0 (watchpost D-106, CQ-N1 closed):** an effective sunspot number fitted from measurements (Secan & Wilkinson
+1997). On PLAN's week its proxy gained nothing over the climatology, and the stations assimilated over the
+climatology (the fallback) did better.
 
 ## Non-functional requirements
 
