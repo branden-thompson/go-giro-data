@@ -61,3 +61,4 @@ restated here; this log holds go-giro-data's own.
 | D-40 | 2026-10-07 | Restates watchpost D-113 | see watchpost D-113 | The library exports each source's host with its terms (R-4.1); every request goes to an exported host; the host's client refuses others. |
 | D-41 | 2026-10-07 | Restates watchpost D-114 | see watchpost D-114 | The refits and the Apex sample reach the tree as a one-time plain-text export from the pinned PyIRI environment, with source checksums; `tools/tables` reads only that. |
 | D-42 | 2026-10-07 | Restates watchpost D-116 | see watchpost D-116 | Answers and field cells carry the distance to the nearest assimilated station (R-2.11); G-M3 reports the Pacific and each distance band, not gated. |
+| D-43 | 2026-10-07 | Restates watchpost D-119 | see watchpost D-119 | Gates assert machine-independent proxies; wall-clock targets are a release step on the reference machine, failing when the record is missing. |
