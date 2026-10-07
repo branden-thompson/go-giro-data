@@ -58,3 +58,5 @@ Each ruled from PLAN's dry run, against watchpost D-75's floors, and listed here
 | G-M2 | bit-identical on the same OS and architecture; at most 0.001 MHz apart across amd64 and arm64 | watchpost D-97 |
 | G-M4 | 100% of injected faults reported | watchpost D-12 |
 | G-G1 | a cold first open (25 hours, 2°) ≤ 0.5 s CPU; a refresh ≤ 50 ms; peak memory ≤ 20 MB (Apple M5 Pro) | watchpost D-98 |
+| G-M3 | held-out RMS ≥ 15% below the climatology's in the mainland US and ≥ 10% below overall, on foF2 and MUF(3000); within 500 km of a reporting station foF2 ≤ 0.5 MHz, MUF(3000) ≤ 1.6 MHz; ≥ 3 days, G10.4 | watchpost D-108 |
+
