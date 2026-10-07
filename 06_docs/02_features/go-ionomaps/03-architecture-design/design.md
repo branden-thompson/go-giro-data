@@ -43,7 +43,7 @@ flowchart TB
 ## One update
 
 1. **Throttle** (R-5.3, R-5.4): within the hour's budget? If not, answer from the last good snapshot, with its age and the reason.
-2. **Stations** (R-5.5): the live list, up to 40, rotation and one probe.
+2. **Stations** (R-5.5): the live list, rotation and one probe, never more than 40 requests together (D-87).
 3. **Fetch**, through the host's fetcher (R-5.1):
    - GIRO readings since the last held (R-5.2);
    - GloTEC's newest grid (validators, so a 304 when unchanged);

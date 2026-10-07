@@ -110,7 +110,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 |---|---|---|
 | G9.1 | The burst cap, the hourly limit, 2 a minute, the back-off, `Retry-After` honoured | `TestAnUpdateNeverExceedsItsBurst`, `TestA429BacksOff`, `TestRetryAfterIsHonouredWhenSent` (a fake clock and a counting fetcher) |
 | G9.2 | Early answers from the last good snapshot | `TestAnEarlyUpdateAnswersFromTheLastField` |
-| G9.3 | The seed, the dark-station drop, one probe, rotation above 40 | `TestAColdStartUsesTheSeedWithoutABurst`, `TestADarkStationIsDroppedAfterThreeDays`, `TestOneProbePerUpdate`, `TestAboveFortyStationsRotate` |
+| G9.3 | The seed, the dark-station drop, one probe inside the 40 (D-87), rotation at 40 or more live | `TestAColdStartUsesTheSeedWithoutABurst`, `TestADarkStationIsDroppedAfterThreeDays`, `TestOneProbePerUpdate`, `TestTheProbeCountsInsideTheBurst` (40 live: 39 polled, 1 probe), `TestAboveFortyStationsRotate` |
 | G9.4 | Readings only since the last held | `TestAnUpdateAsksOnlySinceTheLastReading` |
 | G9.5 | Concurrent callers merged; no goroutines of its own | `TestOverlappingUpdatesMergeIntoOne`, `TestTheLibraryStartsNoGoroutines`, the race detector |
 
