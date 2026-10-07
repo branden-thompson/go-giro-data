@@ -54,7 +54,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G6 | Limits and statuses: path MUF, absorption, disturbed | R-2.2, R-2.4 to R-2.7 | G5 |
 | G7 | Answers: bands, path, reach, many points | R-2.1, R-2.3, R-2.8, R-2.9 | G6 |
 | G8 | Forecast hours and their floor | R-1.3 | G5, G3 |
-| G9 | Throttle, stations, update, concurrency | R-5.2 to R-5.6 | G2 |
+| G9 | Throttle, stations, update, concurrency | R-5.2 to R-5.7 | G2 |
 | G10 | Reproducibility, fault injection, benchmarks, the G-M3 instrument | R-6.1, G-M2, G-M3, G-M4, R-8.1 | G7, G8, G9 |
 
 ## G0 — Foundations
@@ -114,6 +114,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G9.3 | The seed, the dark-station drop, one probe inside the 40 (D-87), rotation at 40 or more live | `TestAColdStartUsesTheSeedWithoutABurst`, `TestADarkStationIsDroppedAfterThreeDays`, `TestOneProbePerUpdate`, `TestTheProbeCountsInsideTheBurst` (40 live: 39 polled, 1 probe), `TestAboveFortyStationsRotate` |
 | G9.4 | Readings only since the last held | `TestAnUpdateAsksOnlySinceTheLastReading` |
 | G9.5 | Concurrent callers merged; no goroutines of its own | `TestOverlappingUpdatesMergeIntoOne`, `TestTheLibraryStartsNoGoroutines`, the race detector |
+| G9.6 | Updates between GIRO's asks: NOAA only, the last readings re-assimilated with their age (D-94) | `TestAnUpdateBetweenGIROAsksReusesTheLastReadings`, `TestGIROIsNeverAskedMoreThanHourly` |
 
 ## G10 — Instruments
 
