@@ -29,7 +29,7 @@ may rename, never drop.
 |---|---|---|---|
 | R-1.1 | MUF(3000) and foF2 over the globe for a UTC hour, on a grid a go-tuiMaps host can hand in directly (outer edges -180..180, -90..90; no antimeridian crossing), 2° by default, 1° as an option. MUF(3000) is foF2 × M(3000)F2 by definition | G-R1 | `TestAGlobalFieldIsAValidTuimapsGrid`, `TestTheGridStepIsTheHostsChoice` |
 | R-1.2 | Every field carries the time it is valid for, the time it was computed, and its sources | G-R1, G-R4 | `TestAFieldSaysWhenAndFromWhat` |
-| R-1.3 | **Hours ahead (D-50, D-103):** fields for each hour up to 24 h ahead, each half the current method's field (D-101) at the same hour a day before and half the climatology for that hour; each labelled a forecast, with the time it was made and **its typical error as the library has measured it** (so the host can say its confidence). **Floor (D-75):** forecast error at +3 h and +12 h no worse than climatology; met on PLAN's week (+12 h, US foF2 0.72 against 0.76 MHz), re-checked on recorded inputs in BUILD (G10.4), and hours ahead are cut if it fails | D-50, D-75, D-103 | `TestForecastHoursBlendYesterdayAndClimatology`, `TestAForecastSaysItIsOne`, `TestAForecastCarriesItsTypicalError`; the forecast metric (D-75) |
+| R-1.3 | **Hours ahead (D-50, D-103, D-109):** for each hour up to 24 h ahead, the climatology's fields for that hour (the same hours the day's cache holds, R-8.1), each marked typical rather than forecast; the snapshot carries the typical error and its basis (PLAN's week, `02-analysis/evidence/week.py`), so the host can say it. No field from the day before is used. **Floor (D-75):** met by construction | D-50, D-75, D-103, D-109 | `TestHoursAheadAreTheClimatology`, `TestAnHourAheadIsMarkedTypical`, `TestTheTypicalErrorCarriesItsBasis` |
 
 ## R-2 — Readings at a point and along a path (GR-2; D-27, D-28, D-37, D-47)
 
@@ -125,7 +125,7 @@ climatology (the fallback) did better.
 - **The US stations' scores, and signed bias by distance.** The < 500 km bin was seven European stations; both backgrounds read high.
 - **The NRL refits D-43 ships**, scored, with the F10.7 rule written down (the published figures used 100; 103 moves the climatology's RMS from 1.38 to 1.47).
 - **GloTEC's availability** (how often the fallback runs) and its archive's reach (D-62's backfill).
-- **The forecast hours' accuracy** (R-1.3).
+- **The hours ahead's accuracy** (R-1.3; since D-109 the climatology, its error measured on PLAN's week).
 - **D-RAP's file** size and format.
 - Every target D-49 left to the dry run, each ruled.
 

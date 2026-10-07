@@ -53,7 +53,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G5 | Assimilation of foF2 and M(3000)F2 | R-9.2, R-9.4 | G4 |
 | G6 | Limits and statuses: path MUF, absorption, disturbed | R-2.2, R-2.4 to R-2.7 | G5 |
 | G7 | Answers: bands, path, reach, many points | R-2.1, R-2.3, R-2.8, R-2.9 | G6 |
-| G8 | Forecast hours and their floor | R-1.3 | G5, G3 |
+| G8 | Hours ahead: the climatology, marked typical (D-109) | R-1.3 | G5, G3 |
 | G9 | Throttle, stations, update, concurrency | R-5.2 to R-5.7 | G2 |
 | G10 | Reproducibility, fault injection, benchmarks, the G-M3 instrument | R-6.1, G-M2, G-M3, G-M4, R-8.1 | G7, G8, G9 |
 
@@ -105,7 +105,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G6.3 | D-RAP disturbed | `TestADisturbanceMarksTheBandsItCovers` |
 | G6.4 | Statuses naming their limit | `TestEveryStatusNamesItsLimit` |
 | G7.1 | `Bands`, `Path`, `Reach`, many points in one call | `TestBestBandsForAnArea`, `TestTheDaysOpenHours`, `TestAFrequencysReachIsAField`, `TestTheSkipZoneIsReturned`, `TestReadingsForManyPointsInOneCall` |
-| G8.1 | Forecast hours: yesterday's field and the climatology, half and half, with each hour's typical error (D-103) | `TestForecastHoursBlendYesterdayAndClimatology`, `TestAForecastSaysItIsOne`, `TestAForecastCarriesItsTypicalError` |
+| G8.1 | Hours ahead: the climatology's hours from the day's cache, marked typical, with the typical error and its basis (D-109) | `TestHoursAheadAreTheClimatology`, `TestAnHourAheadIsMarkedTypical`, `TestTheTypicalErrorCarriesItsBasis` |
 
 ## G9 — Throttle, stations, update
 

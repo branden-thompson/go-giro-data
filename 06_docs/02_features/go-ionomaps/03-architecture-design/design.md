@@ -28,7 +28,7 @@ flowchart TB
   CL["internal/climatology<br/>PyIRI method over Tables"]
   AS["internal/assimilate<br/>GP on the sphere: foF2 over GloTEC,<br/>M(3000)F2 over the climatology (D-101)"]
   LIM["internal/limits<br/>P.533 MUF, daytime absorption, disturbed"]
-  FC["internal/forecast<br/>yesterday's field blended with climatology"]
+  FC["internal/forecast<br/>hours ahead: the climatology, marked typical (D-109)"]
   TM["internal/terms<br/>sources, terms, citations"]
   API --> THR --> ST --> GIRO
   API --> GT
@@ -60,7 +60,7 @@ flowchart TB
    - M(3000)F2: the climatology's (watchpost D-101);
    - else the climatology (named, FR-5.2).
 6. **Assimilate** (R-9.2): station residuals for foF2 (over GloTEC) and M(3000)F2 (over the climatology), a GP on the sphere each, added to its background.
-7. **Forecast** (R-1.3, watchpost D-103): each hour ahead, half the field at the same hour a day before, half the climatology for that hour, with its typical error.
+7. **Hours ahead** (R-1.3, watchpost D-109): each hour ahead is the climatology's hour from the day's cache, marked typical, with the typical error and its basis.
 8. **Snapshot:** fields, valid and computed times, sources, background, age.
 
 The answers (`Bands`, `Path`, `Reach`) are pure functions of a snapshot (R-2), so a host can call them off
@@ -78,7 +78,7 @@ source in its doc comment (R-7.1).
 | Magnetic coordinates | IGRF-14 field, field lines traced to the apex; quasi-dipole latitude from the apex height; MLT from the subsolar point's quasi-dipole longitude; generated at build time | IAGA IGRF-14 (its release paper, cited in BUILD); Richmond 1995 (J. Geomag. Geoelectr. 47, 191-212); Laundal & Richmond 2017 (Space Sci. Rev.); checked against PyIRI's `Apex.nc` (MIT) (watchpost D-107) |
 | Sunspot scale | SILSO v2 to the v1 scale (k = 0.6); foF2 capped at R12 = 160 | ITU-R P.1239-4; Lockwood et al. 2016 |
 | Assimilation | Gaussian-process regression of station residuals; exponential kernel in great-circle distance | Rasmussen & Williams 2006; Gneiting 2013 (doi:10.3150/12-BEJSP06); validated against Galkin et al. 2012 (IRTAM, doi:10.1029/2011RS004952) |
-| Forecast | the same hour a day before blended half and half with the climatology (recurrence and climatology); the weight measured on PLAN's week, not taken from a published method | watchpost D-103; `02-analysis/evidence/week.py` |
+| Hours ahead | the climatology for each hour, marked typical; its error measured on PLAN's week | watchpost D-109; `02-analysis/evidence/week.py` |
 | MUF for a path | basic MUF from foF2, M(3000)F2 and distance | ITU-R P.533-14 §3.4-3.5, equations checked against the recommendation's worked values (R-2.7) |
 | Daytime absorption | absorption against solar zenith angle, frequency and solar activity, for the reference circuit | ITU-R P.533-14 (its absorption term); the method only, no text or tables |
 | Disturbance | D-RAP's 1 dB frequency; below it, "disturbed" | NOAA SWPC D-RAP (public domain) |
@@ -100,7 +100,7 @@ test runs the climatology on supplied tables (R-4.4), so the refits can be repla
 ## What the dry run decides here
 
 - the kernel length and noise;
-- the forecast's blend weight (0.5, watchpost D-103);
+- the hours ahead's typical error (watchpost D-109);
 - the near-vertical radius: the host's to give (watchpost D-100: 400 km by default, a Setting);
 - the F10.7 rule;
 - the refits' accuracy against PyIRI's raw CCIR tables.

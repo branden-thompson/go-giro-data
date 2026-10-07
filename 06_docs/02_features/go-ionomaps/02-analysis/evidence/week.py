@@ -1,9 +1,11 @@
 """PLAN's dry run, scored (watchpost FR-10.6): a week of GIRO soundings against GloTEC, the climatologies
 and B on D, for foF2 and MUF(3000), held out.
 
-Usage: week.py DIR DSI
+Usage: week.py DIR DSI DISTURBED
   DIR  holds dry_fetch.py's output: fc_*.txt (GIRO) and glotec_*.geojson (NOAA, 3-hourly)
   DSI  NOAA SWPC's text/daily-solar-indices.txt (F10.7 by day)
+  DISTURBED  the storm days, comma-separated YYYY-MM-DD, from NOAA's daily geomagnetic indices (required:
+             the quiet/storm splits are never printed without it); for the PLAN week: 2026-10-04,2026-10-05
 
 Method:
 - A sounding is paired with a grid when within 10 minutes of the grid's time and its confidence score is
@@ -35,7 +37,11 @@ import PyIRI.main_library as ml
 import PyIRI.sh_library as sh
 
 warnings.filterwarnings("ignore")
+if len(sys.argv) != 4:
+    sys.exit("usage: week.py DIR DSI DISTURBED (see the docstring)")
 D, DSI = sys.argv[1], sys.argv[2]
+bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")}
+MIN_F107_DAYS = 20   # the 30-day mean is refused below this many observed days
 PACIFIC = {"EA653", "LL721", "WA619", "GU513"}
 CS_MIN = 70
 
@@ -137,10 +143,16 @@ if not obs:
 COEFF_ML = PyIRI.coeff_dir if hasattr(PyIRI, "coeff_dir") else None
 
 
+F107_DAYS = {}
+
+
 def f107(day, rule):
     if rule == "day":
         return F107[day]
     prev = [F107[day - timedelta(days=k)] for k in range(1, 31) if day - timedelta(days=k) in F107]
+    if len(prev) < MIN_F107_DAYS:
+        sys.exit(f"week.py: only {len(prev)} days of F10.7 before {day} (need {MIN_F107_DAYS})")
+    F107_DAYS[day] = len(prev)
     return sum(prev) / len(prev)
 
 
@@ -192,8 +204,12 @@ def gp_loo(back, L, noise):
 
 
 def errors(pred, keys):
-    fo = [pred[k][0] - obs[k][0] for k in keys if k in pred]
-    mf = [pred[k][0] * pred[k][1] - obs[k][1] for k in keys if k in pred]
+    """Errors at exactly the keys given: a key the method lacks is an error, never silently dropped."""
+    missing = [k for k in keys if k not in pred]
+    if missing:
+        raise KeyError(f"{len(missing)} of {len(keys)} pairs missing from a method, e.g. {missing[0]}")
+    fo = [pred[k][0] - obs[k][0] for k in keys]
+    mf = [pred[k][0] * pred[k][1] - obs[k][1] for k in keys]
     return np.array(fo), np.array(mf)
 
 
@@ -210,22 +226,24 @@ def tune(back):
     for L in (500, 1000, 2000, 4000, 8000):
         for noise in (0.05, 0.2, 0.5, 1.0, 2.0, 4.0):
             p = gp_loo(back, L, noise)
-            fo, mf = errors(p, TUNE)
+            fo, mf = errors(p, [k for k in TUNE if k in p])
+            if not len(fo):
+                sys.exit("week.py: nothing to tune on")
             score = rms(fo) / 1.0 + rms(mf) / 3.0
             if best is None or score < best[0]:
                 best = (score, L, noise, p)
     return best[1], best[2], best[3]
 
 
-# the shipped climatology for the floor: chosen by its own error over the whole week, the most favourable
-# reading of the fallback (so B on D is held to the hardest comparison)
+# the climatology is the one that ships, fixed rather than chosen on the data: NRL's CCIR refit (watchpost D-43,
+# A-28) with the 30-day mean F10.7 (D-104). Section 1 still ranks every variant, on the whole week.
 def clim_rms(c):
     fo, mf = errors(c, ALL)
     return rms(fo) + rms(mf) / 3.0
 
 
 ranked = sorted(clim, key=lambda k: clim_rms(clim[k]))
-CBEST = ranked[0]
+CBEST = ("CCIR refit", "30d")
 Lg, Ng, BD = tune(glo)
 Lc, Nc, BC = tune(clim[CBEST])
 
@@ -233,7 +251,7 @@ print(f"week: {times[0]:%Y-%m-%d %H:%M} to {times[-1]:%Y-%m-%d %H:%M}, {len(time
       f"{len(ALL)} pairs (tune: first 3 days {len(TUNE)}, test: rest {len(TEST)})")
 print(f"F10.7 (day): {', '.join(f'{d:%m-%d} {F107[d]:.0f}' for d in sorted(by_day))}")
 print(f"stations with paired soundings: {len(STS)} of {len(glob.glob(f'{D}/fc_*.txt'))} fetched (the rest had none at CS >= {CS_MIN})")
-print(f"kernel tuned: B on D L={Lg} km noise={Ng}; B on C L={Lc} km noise={Nc}; best climatology: {CBEST[0]} / F10.7 {CBEST[1]}")
+print(f"kernel tuned: B on D L={Lg} km noise={Ng}; B on C L={Lc} km noise={Nc}; the climatology: {CBEST[0]} / F10.7 {CBEST[1]} (as shipped)")
 
 print("\n1. Climatologies (all pairs): foF2 RMS / bias | MUF(3000) RMS / bias")
 for k in ranked:
@@ -261,6 +279,10 @@ def clim_plus_mean(c):
 
 CM = clim_plus_mean(clim[CBEST])
 methods = [("B on D", BD), ("hybrid", HY), ("GloTEC", glo), ("B on C", BC), ("clim+mean", CM), ("clim", clim[CBEST])]
+COMMON = [k for k in ALL if all(k in m for _, m in methods)]   # every method scored on the same pairs
+COMMON_TEST = [k for k in COMMON if k in set(TEST)]
+print(f"common pairs: {len(COMMON)} of {len(ALL)} (test days {len(COMMON_TEST)}); F10.7 30-day mean over "
+      f"{min(F107_DAYS.values())} to {max(F107_DAYS.values())} observed days")
 groups = [("all", lambda k: True), ("mainland US", lambda k: mainland_us(k[1])),
           ("Pacific", lambda k: k[1] in PACIFIC), ("elsewhere", lambda k: not mainland_us(k[1]) and k[1] not in PACIFIC)]
 
@@ -278,8 +300,8 @@ def table(title, keys):
         print(f"   {gname:11s} (n={len(ks):4d})  " + "   ".join(cells))
 
 
-table("2. Held out, test days (after tuning)", TEST)
-table("3. Held out, whole week", ALL)
+table("2. Held out, test days (after tuning)", COMMON_TEST)
+table("3. Held out, whole week", COMMON)
 
 print("\n4. By distance to the nearest other reporting station, whole week (foF2 RMS | MUF RMS)")
 nearest = {}
@@ -287,7 +309,7 @@ for k in ALL:
     others = [s for s in STS if s != k[1] and (k[0], s) in obs]
     nearest[k] = min(DIST[(k[1], s)] for s in others) if others else 1e9
 for lo, hi in ((0, 500), (500, 1000), (1000, 2000), (2000, 20000)):
-    ks = [k for k in ALL if lo <= nearest[k] < hi]
+    ks = [k for k in COMMON if lo <= nearest[k] < hi]
     if ks:
         cells = []
         for mname, m in methods:
@@ -297,7 +319,7 @@ for lo, hi in ((0, 500), (500, 1000), (1000, 2000), (2000, 20000)):
 
 print("\n5. By station, whole week, held out: n, B on D foF2 RMS/bias, MUF RMS/bias, clim foF2 RMS, region")
 for st in STS:
-    ks = [k for k in ALL if k[1] == st]
+    ks = [k for k in COMMON if k[1] == st]
     if not ks:
         continue
     fo, mf = errors(BD, ks); cf, cm = errors(clim[CBEST], ks)
@@ -321,7 +343,8 @@ def forecast(h, tau, base=None):
 
 
 def blend(w, base=None):
-    """w x (B on D a day before) + (1 - w) x climatology, at the target time: usable for any h <= 24."""
+    """w x (the field a day before the target time) + (1 - w) x climatology at the target time. It does not
+    depend on the lead: the same prediction serves every hour ahead up to 24."""
     pred = {}
     for (t, st), v in (base or BD).items():
         tt = t + timedelta(hours=24)
@@ -330,13 +353,9 @@ def blend(w, base=None):
     return pred
 
 
-def yesterday(h):
-    pred = {}
-    for (t, st), v in BD.items():
-        tt = t + timedelta(hours=24)       # issued at tt-h, using B on D from tt-24 h
-        if h <= 24:
-            pred[(tt, st)] = v
-    return pred
+def yesterday():
+    """B on D a day before the target time, as the prediction for it."""
+    return {(t + timedelta(hours=24), st): v for (t, st), v in BD.items()}
 
 
 bw = None
@@ -360,7 +379,7 @@ for h in (3, 12):
     tau = best[1]
     cands = ((f"decay tau={tau}", forecast(h, tau)), (f"hybrid decay", forecast(h, tau, HY)),
              ("persistence", forecast(h, math.inf)),
-             ("yesterday", yesterday(h)), (f"blend w={W_BLEND}", blend(W_BLEND)),
+             ("yesterday", yesterday()), (f"blend w={W_BLEND}", blend(W_BLEND)),
              ("hybrid blend", blend(W_BLEND, HY)), ("climatology", forecast(h, 0)))
     common = [k for k in TEST if all(k in p for _, p in cands)]   # every method scored on the same pairs
     for label, p in cands:
@@ -374,7 +393,7 @@ for h in (3, 12):
 # ---------- by day, and quiet against disturbed ----------
 print("\n7. By day, held out (foF2 RMS | MUF RMS), all stations and mainland US")
 for day in sorted(by_day):
-    ks = [k for k in ALL if k[0].date() == day]
+    ks = [k for k in COMMON if k[0].date() == day]
     us = [k for k in ks if mainland_us(k[1])]
     cells = []
     for mname, m in methods:
@@ -382,22 +401,19 @@ for day in sorted(by_day):
         cells.append(f"{mname} {rms(fo):.2f}|{rms(mf):.2f} (US {rms(fu):.2f}|{rms(mu):.2f})")
     print(f"   {day:%m-%d} n={len(ks):3d}  " + "  ".join(cells))
 
-if len(sys.argv) > 3:   # DISTURBED days, comma-separated YYYY-MM-DD (from NOAA's daily geomagnetic indices)
-    bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")}
-    print(f"\n8. Forecast on the test days, quiet against disturbed ({', '.join(sorted(d.isoformat() for d in bad))})")
-    for h in (3, 12):
-        cands = ((f"decay tau={'6' if h == 3 else '12'}", forecast(h, 6 if h == 3 else 12)),
-                 ("blend", blend(W_BLEND)), ("hybrid blend", blend(W_BLEND, HY)), ("climatology", forecast(h, 0)))
-        common = [k for k in TEST if all(k in p for _, p in cands)]
-        for label, p in cands:
-            for name, sel in (("quiet", lambda k: k[0].date() not in bad), ("disturbed", lambda k: k[0].date() in bad)):
-                ks = [k for k in common if sel(k)]; us = [k for k in ks if mainland_us(k[1])]
-                fo, mf = errors(p, ks); fu, mu = errors(p, us)
-                print(f"   +{h:2d} h {label:13s} {name:9s} n={len(ks):3d}  all {rms(fo):.2f} | {rms(mf):.2f}   US (n={len(us)}) {rms(fu):.2f} | {rms(mu):.2f}")
+print(f"\n8. Forecast on the test days, quiet against disturbed ({', '.join(sorted(d.isoformat() for d in bad))})")
+for h in (3, 12):
+    cands = ((f"decay tau={'6' if h == 3 else '12'}", forecast(h, 6 if h == 3 else 12)),
+             ("blend", blend(W_BLEND)), ("hybrid blend", blend(W_BLEND, HY)), ("climatology", forecast(h, 0)))
+    common = [k for k in TEST if all(k in p for _, p in cands)]
+    for label, p in cands:
+        for name, sel in (("quiet", lambda k: k[0].date() not in bad), ("disturbed", lambda k: k[0].date() in bad)):
+            ks = [k for k in common if sel(k)]; us = [k for k in ks if mainland_us(k[1])]
+            fo, mf = errors(p, ks); fu, mu = errors(p, us)
+            print(f"   +{h:2d} h {label:13s} {name:9s} n={len(ks):3d}  all {rms(fo):.2f} | {rms(mf):.2f}   US (n={len(us)}) {rms(fu):.2f} | {rms(mu):.2f}")
 
 # ---------- skill by lead: does today's departure from climatology last? ----------
 print("\n9. By lead, test days, decay from now (tau tuned per lead) against climatology; US foF2 | MUF, then all")
-bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")} if len(sys.argv) > 3 else set()
 for h in (0, 3, 6, 9, 12, 24):
     if h == 0:
         cands = (("now (hybrid)", HY), ("climatology", C))
@@ -415,4 +431,29 @@ for h in (0, 3, 6, 9, 12, 24):
         us = [k for k in common if mainland_us(k[1])]
         fo, mf = errors(p, common); fu, mu = errors(p, us)
         print(f"   +{h:2d} h quiet {label:18s} US (n={len(us):3d}) {rms(fu):.2f} | {rms(mu):.2f}   all (n={len(common):3d}) {rms(fo):.2f} | {rms(mf):.2f}")
+
+# ---------- what a host can run: no field from yesterday unless it fetched one ----------
+# B on C yesterday needs only GIRO's readings for the past 24 h (one request per station covers the range)
+# and the climatology; the hybrid's yesterday needs yesterday's GloTEC grids, which the host never holds.
+BANDS = (3.5, 5.3, 7.0, 10.1, 14.0, 18.1, 21.0, 24.9, 28.0)
+open_set = lambda muf: frozenset(f for f in BANDS if f < muf)
+print("\n10. Forecast a host can run (test days, quiet | storm), and band answers (MUF(3000) above each band)")
+for h in (3, 12):
+    cands = (("blend, hybrid yesterday (needs past GloTEC)", blend(W_BLEND, HY)), ("blend, B on C yesterday", blend(W_BLEND, BC)),
+             ("climatology", forecast(h, 0)))
+    common = [k for k in TEST if all(k in p for _, p in cands)]
+    for label, p in cands:
+        for name, sel in (("quiet", lambda k: k[0].date() not in bad), ("storm", lambda k: k[0].date() in bad)):
+            ks = [k for k in common if sel(k)]; us = [k for k in ks if mainland_us(k[1])]
+            fo, mf = errors(p, ks); fu, mu = errors(p, us)
+            print(f"   +{h:2d} h {label:44s} {name:5s} n={len(ks):3d} all {rms(fo):.2f} | {rms(mf):.2f}  US {rms(fu):.2f} | {rms(mu):.2f}")
+    # band answers: where the forecast and climatology disagree on which bands sit below MUF(3000), who is right?
+    for label, p in cands[:2]:
+        c = cands[2][1]
+        diff = [k for k in common if open_set(p[k][0] * p[k][1]) != open_set(c[k][0] * c[k][1])]
+        obs_set = lambda k: open_set(obs[k][1])
+        f_right = sum(open_set(p[k][0] * p[k][1]) == obs_set(k) for k in diff)
+        c_right = sum(open_set(c[k][0] * c[k][1]) == obs_set(k) for k in diff)
+        print(f"   +{h:2d} h {label:44s} differs from climatology's bands in {len(diff)} of {len(common)} "
+              f"({100 * len(diff) / len(common):.0f}%); of those, forecast right {f_right}, climatology right {c_right}, neither {len(diff) - f_right - c_right}")
 
