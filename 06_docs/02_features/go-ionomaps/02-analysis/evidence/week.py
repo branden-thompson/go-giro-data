@@ -370,3 +370,28 @@ for h in (3, 12):
         fu, mu = errors(p, us)
         print(f"   +{h:2d} h {label:16s} n={len(ks):4d}  all {rms(fo):.2f} | {rms(mf):.2f}   mainland US (n={len(us)}) "
               f"{rms(fu):.2f} | {rms(mu):.2f}")
+
+# ---------- by day, and quiet against disturbed ----------
+print("\n7. By day, held out (foF2 RMS | MUF RMS), all stations and mainland US")
+for day in sorted(by_day):
+    ks = [k for k in ALL if k[0].date() == day]
+    us = [k for k in ks if mainland_us(k[1])]
+    cells = []
+    for mname, m in methods:
+        fo, mf = errors(m, ks); fu, mu = errors(m, us)
+        cells.append(f"{mname} {rms(fo):.2f}|{rms(mf):.2f} (US {rms(fu):.2f}|{rms(mu):.2f})")
+    print(f"   {day:%m-%d} n={len(ks):3d}  " + "  ".join(cells))
+
+if len(sys.argv) > 3:   # DISTURBED days, comma-separated YYYY-MM-DD (from NOAA's daily geomagnetic indices)
+    bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")}
+    print(f"\n8. Forecast on the test days, quiet against disturbed ({', '.join(sorted(d.isoformat() for d in bad))})")
+    for h in (3, 12):
+        cands = ((f"decay tau={'6' if h == 3 else '12'}", forecast(h, 6 if h == 3 else 12)),
+                 ("blend", blend(W_BLEND)), ("hybrid blend", blend(W_BLEND, HY)), ("climatology", forecast(h, 0)))
+        common = [k for k in TEST if all(k in p for _, p in cands)]
+        for label, p in cands:
+            for name, sel in (("quiet", lambda k: k[0].date() not in bad), ("disturbed", lambda k: k[0].date() in bad)):
+                ks = [k for k in common if sel(k)]; us = [k for k in ks if mainland_us(k[1])]
+                fo, mf = errors(p, ks); fu, mu = errors(p, us)
+                print(f"   +{h:2d} h {label:13s} {name:9s} n={len(ks):3d}  all {rms(fo):.2f} | {rms(mf):.2f}   US (n={len(us)}) {rms(fu):.2f} | {rms(mu):.2f}")
+
