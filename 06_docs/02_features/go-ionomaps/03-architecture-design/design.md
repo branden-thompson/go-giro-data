@@ -24,6 +24,7 @@ flowchart TB
   GIRO["internal/giro<br/>FastChar requests, parsing, ranges"]
   GT["internal/glotec<br/>typed GeoJSON, foF2 and M(3000)F2"]
   DR["internal/drap<br/>D-RAP table"]
+  SC["internal/scales<br/>NOAA R, S, G (D-88)"]
   CL["internal/climatology<br/>PyIRI method over Tables"]
   AS["internal/assimilate<br/>GP on the sphere, foF2 and M(3000)F2"]
   LIM["internal/limits<br/>P.533 MUF, daytime absorption, disturbed"]
@@ -32,6 +33,7 @@ flowchart TB
   API --> THR --> ST --> GIRO
   API --> GT
   API --> DR
+  API --> SC
   API --> AS
   AS --> GT
   AS --> CL
@@ -47,7 +49,8 @@ flowchart TB
 3. **Fetch**, through the host's fetcher (R-5.1):
    - GIRO readings since the last held (R-5.2);
    - GloTEC's newest grid (validators, so a 304 when unchanged);
-   - D-RAP.
+   - D-RAP;
+   - NOAA's space-weather scales (D-88).
 
    A 429 stops the update and starts the back-off.
 4. **Parse and check** (R-3.3, R-3.4): header lines dropped; every value range-checked; rejects counted.
@@ -77,6 +80,7 @@ source in its doc comment (R-7.1).
 | MUF for a path | basic MUF from foF2, M(3000)F2 and distance | ITU-R P.533-14 §3.4-3.5, equations checked against the recommendation's worked values (R-2.7) |
 | Daytime absorption | absorption against solar zenith angle, frequency and solar activity, for the reference circuit | ITU-R P.533-14 (its absorption term); the method only, no text or tables |
 | Disturbance | D-RAP's 1 dB frequency; below it, "disturbed" | NOAA SWPC D-RAP (public domain) |
+| Space-weather scales | NOAA's R, S and G levels and outlook, carried as published; named, not modelled (D-88) | NOAA SWPC scales feed (public domain) |
 | Reach | the area where a frequency lies between the limits along paths from an origin; the skip zone where the sky wave first returns | geometry over the path model above |
 
 ## Tables (the seam, D-43)

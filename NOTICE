@@ -14,7 +14,8 @@ Sources the library reads, or will read, and their terms:
    A field computed from these readings is treated as a substantially derivative product, which GIRO's
    rules leave unrestricted. That reading is this project's own and has not been confirmed by GIRO.
 
-2. NOAA Space Weather Prediction Center: GloTEC (NmF2, hmF2) and D-RAP (D-region absorption)
+2. NOAA Space Weather Prediction Center: GloTEC (NmF2, hmF2), D-RAP (D-region absorption)
+   and the space-weather scales (R, S, G)
    Public domain (weather.gov/disclaimer). No endorsement by NOAA or the NWS is implied.
 
 3. PyIRI (NASA / U.S. Naval Research Laboratory), MIT licence, Copyright (c) 2023 victoriyaforsythe.

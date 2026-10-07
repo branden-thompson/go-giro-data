@@ -30,7 +30,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | `ionomaps.go`, `snapshot.go`, `answers.go` | the public surface (watchpost architecture, "go-ionomaps' shape") |
 | `internal/throttle/` | D-39's budget, back-off and early answers (R-5.3, R-5.4) |
 | `internal/stations/` | the seed list and rotation (R-5.5); `stations.tsv`, codes and positions only |
-| `internal/giro/`, `internal/glotec/`, `internal/drap/` | requests and parsing for each source (R-3.3, R-3.4, R-8.2) |
+| `internal/giro/`, `internal/glotec/`, `internal/drap/`, `internal/scales/` | requests and parsing for each source (R-3.3, R-3.4, R-8.2, R-2.10) |
 | `internal/climatology/` | the PyIRI port over `Tables` (R-9.1, R-4.4) |
 | `internal/climatology/tables/` | NRL's refits, converted (R-4.3: the only third-party data allowed) |
 | `internal/assimilate/` | the Gaussian process (R-9.2) |
@@ -47,7 +47,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 |---|---|---|---|
 | G0 | Foundations: the gate, CI, the third-party-data scan, the NOTICE test, the citation check | NFR-1, R-4.2, R-4.3, R-7.1 | — |
 | G1 | Public types, terms, the fetcher contract | R-1.2, R-4.1, R-5.1 | G0 |
-| G2 | Parsers: GIRO, GloTEC, D-RAP, with fuzzers and physical ranges | R-3.1 to R-3.4, R-8.2 | G1 |
+| G2 | Parsers: GIRO, GloTEC, D-RAP, the scales, with fuzzers and physical ranges | R-3.1 to R-3.4, R-8.2, R-2.10 | G1 |
 | G3 | The climatology: the PyIRI port, the tables seam, the refits | R-9.1, R-4.4, R-7.3 | G1 |
 | G4 | The background: GloTEC fields, the fallback named | R-9.3, R-3.2 | G2, G3 |
 | G5 | Assimilation of foF2 and M(3000)F2 | R-9.2, R-9.4 | G4 |
@@ -81,6 +81,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 | G2.2 | GloTEC GeoJSON, typed decode | `BenchmarkGloTECDecode`, `FuzzGloTECDecode`, `TestFoF2FromNmF2` |
 | G2.3 | D-RAP table | `FuzzDRAPParser`, `TestDRAPGridIsTwoByFour` (from the measured file's layout) |
 | G2.4 | Station codes `^[A-Z0-9]{5}$`, through `url.Values` | `TestStationCodesAreChecked` |
+| G2.5 | NOAA's scales feed: levels 0 to 5 checked, outlook days and probabilities, unset when missing (D-88) | `FuzzScalesParser`, `TestTheScalesAreCarriedInTheSnapshot`, `TestMissingScalesAreUnsetNotZero` |
 
 ## G3 — The climatology
 
