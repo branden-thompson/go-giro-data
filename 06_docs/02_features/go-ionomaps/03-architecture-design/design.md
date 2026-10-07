@@ -99,7 +99,7 @@ test runs the climatology on supplied tables (R-4.4), so the refits can be repla
 
 - the kernel length and noise;
 - the forecast's time constant;
-- the near-vertical radius (watchpost A-18);
+- the near-vertical radius: the host's to give (watchpost D-100: 400 km by default, a Setting);
 - the F10.7 rule;
 - the refits' accuracy against PyIRI's raw CCIR tables.
 
