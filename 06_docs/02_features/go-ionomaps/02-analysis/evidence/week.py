@@ -240,7 +240,27 @@ for k in ranked:
     fo, mf = errors(clim[k], ALL)
     print(f"   {k[0]:11s} F10.7 {k[1]:3s}  {rms(fo):.2f} / {bias(fo):+.2f} | {rms(mf):.2f} / {bias(mf):+.2f}")
 
-methods = [("B on D", BD), ("GloTEC", glo), (f"B on C", BC), (f"clim", clim[CBEST])]
+# hybrid: foF2 from B on D, M(3000)F2 from B on C (GloTEC's hmF2-derived M(3000)F2 is the weak half)
+HY = {k: (BD[k][0], BC[k][1]) for k in BD if k in BC}
+
+
+# climatology plus the other stations' mean residual at that time, held out: an effective-index proxy (CQ-N1)
+def clim_plus_mean(c):
+    out = {}
+    for t in times:
+        here = [s for s in STS if (t, s) in obs]
+        for held in here:
+            rest = [s for s in here if s != held]
+            if len(rest) < 3:
+                continue
+            dfo = sum(obs[(t, s)][0] - c[(t, s)][0] for s in rest) / len(rest)
+            dm3 = sum(obs[(t, s)][2] - c[(t, s)][1] for s in rest) / len(rest)
+            out[(t, held)] = (c[(t, held)][0] + dfo, c[(t, held)][1] + dm3)
+    return out
+
+
+CM = clim_plus_mean(clim[CBEST])
+methods = [("B on D", BD), ("hybrid", HY), ("GloTEC", glo), ("B on C", BC), ("clim+mean", CM), ("clim", clim[CBEST])]
 groups = [("all", lambda k: True), ("mainland US", lambda k: mainland_us(k[1])),
           ("Pacific", lambda k: k[1] in PACIFIC), ("elsewhere", lambda k: not mainland_us(k[1]) and k[1] not in PACIFIC)]
 
@@ -289,14 +309,24 @@ for st in STS:
 C = clim[CBEST]
 
 
-def forecast(h, tau):
+def forecast(h, tau, base=None):
     pred = {}
-    for (t, st), (fo, m3) in BD.items():
+    for (t, st), (fo, m3) in (base or BD).items():
         tt = t + timedelta(hours=h)
         if (tt, st) not in C:
             continue
         w = 0.0 if tau == 0 else (1.0 if tau == math.inf else math.exp(-h / tau))
         pred[(tt, st)] = (C[(tt, st)][0] + (fo - C[(t, st)][0]) * w, C[(tt, st)][1] + (m3 - C[(t, st)][1]) * w)
+    return pred
+
+
+def blend(w, base=None):
+    """w x (B on D a day before) + (1 - w) x climatology, at the target time: usable for any h <= 24."""
+    pred = {}
+    for (t, st), v in (base or BD).items():
+        tt = t + timedelta(hours=24)
+        if (tt, st) in C:
+            pred[(tt, st)] = (w * v[0] + (1 - w) * C[(tt, st)][0], w * v[1] + (1 - w) * C[(tt, st)][1])
     return pred
 
 
@@ -309,6 +339,15 @@ def yesterday(h):
     return pred
 
 
+bw = None
+for w in (0.25, 0.5, 0.75, 1.0):
+    p = blend(w)
+    fo, mf = errors(p, [k for k in TUNE if k in p])
+    s = rms(fo) + rms(mf) / 3.0
+    if bw is None or s < bw[0]:
+        bw = (s, w)
+W_BLEND = bw[1]
+
 print("\n6. Forecast, held out (foF2 RMS | MUF RMS); tau tuned on the first three days, scored on the rest")
 for h in (3, 12):
     best = None
@@ -319,9 +358,13 @@ for h in (3, 12):
         if best is None or s < best[0]:
             best = (s, tau)
     tau = best[1]
-    for label, p in ((f"decay tau={tau}", forecast(h, tau)), ("persistence", forecast(h, math.inf)),
-                     ("yesterday", yesterday(h)), ("climatology", forecast(h, 0))):
-        ks = [k for k in TEST if k in p]
+    cands = ((f"decay tau={tau}", forecast(h, tau)), (f"hybrid decay", forecast(h, tau, HY)),
+             ("persistence", forecast(h, math.inf)),
+             ("yesterday", yesterday(h)), (f"blend w={W_BLEND}", blend(W_BLEND)),
+             ("hybrid blend", blend(W_BLEND, HY)), ("climatology", forecast(h, 0)))
+    common = [k for k in TEST if all(k in p for _, p in cands)]   # every method scored on the same pairs
+    for label, p in cands:
+        ks = common
         fo, mf = errors(p, ks)
         us = [k for k in ks if mainland_us(k[1])]
         fu, mu = errors(p, us)
