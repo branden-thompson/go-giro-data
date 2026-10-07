@@ -50,7 +50,8 @@ flowchart TB
    - GIRO readings since the last held (R-5.2);
    - GloTEC's newest grid (validators, so a 304 when unchanged);
    - D-RAP;
-   - NOAA's space-weather scales (D-88).
+   - NOAA's space-weather scales (D-88);
+   - NOAA's daily solar indices, at most once a day (watchpost D-104).
 
    A 429 stops the update and starts the back-off.
 4. **Parse and check** (R-3.3, R-3.4): header lines dropped; every value range-checked; rejects counted.

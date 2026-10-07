@@ -89,7 +89,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 |---|---|---|
 | G3.1 | `Tables` and the port of PyIRI's evaluation (spherical harmonics in modip, Fourier in local time) | `TestTheFallbackMatchesPyIRI` against values produced by PyIRI 0.1.7 (MIT) at fixed inputs, committed as a small golden |
 | G3.2 | The refits converter (`tools/tables`) and the converted tables | `TestTheConvertedTablesRoundTrip` |
-| G3.3 | Sunspot scale and the R12 cap | `TestTheSunspotScaleIsConverted`, `TestFoF2IsCappedAt160` |
+| G3.3 | Sunspot scale and the R12 cap; the F10.7 rule, the 30-day mean of NOAA's daily values, and its parser (D-104, R-9.5) | `TestTheSunspotScaleIsConverted`, `TestFoF2IsCappedAt160`, `TestTheF107RuleIsTheThirtyDayMean`, `TestAMissingSolarFileUsesTheLastMeanWithItsAge`, `FuzzSolarIndicesParser` |
 | G3.4 | Any tables through the seam | `TestTheClimatologyRunsOnAnySuppliedTables` |
 
 ## G4 to G8 — The science
@@ -98,6 +98,7 @@ a release candidate in its BUILD and ship on v0.1.0 (watchpost D-3).
 |---|---|---|
 | G4.1 | foF2 over GloTEC, M(3000)F2 over the climatology (D-101); climatology for foF2 when GloTEC is missing, named | `TestTheFallbackIsUsedAndNamed`, `TestM3000BackgroundIsTheClimatology` |
 | G5.1 | The GP on the sphere for foF2 and M(3000)F2 residuals; kernel valid on the sphere | `TestTheKernelIsValidOnTheSphere` (positive-definite on random station sets), `TestAResidualAtAStationIsRecovered` |
+| G5.2 | The live and typical offsets, and the no-readings correction (D-105, R-9.6) | `TestTheLiveOffsetIsCarried`, `TestTheTypicalOffsetLearnsFromUpdates`, `TestTheNoReadingsCorrectionIsNamed` |
 | G6.1 | P.533 path MUF | `TestPathMUFFollowsP533` against the recommendation's worked values |
 | G6.2 | Daytime absorption for the reference circuit | `TestDaytimeAbsorptionClosesTheLowBands` (80 m absorbed at local noon, open at night, mid-latitude) |
 | G6.3 | D-RAP disturbed | `TestADisturbanceMarksTheBandsItCovers` |
