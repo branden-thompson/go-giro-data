@@ -63,3 +63,4 @@ restated here; this log holds go-giro-data's own.
 | D-42 | 2026-10-07 | Restates watchpost D-116 | see watchpost D-116 | Answers and field cells carry the distance to the nearest assimilated station (R-2.11); G-M3 reports the Pacific and each distance band, not gated. |
 | D-43 | 2026-10-07 | Restates watchpost D-119 | see watchpost D-119 | Gates assert machine-independent proxies; wall-clock targets are a release step on the reference machine, failing when the record is missing. |
 | D-44 | 2026-10-07 | Restates watchpost D-124 | see watchpost D-124 | PLAN's instruments (no data) are committed to `02-analysis/evidence/plan-dry-run/`, each Go file headed as placeholder physics. |
+| D-45 | 2026-10-07 | Restates watchpost D-125 | see watchpost D-125 | v0.1.0 offers 2° only; `Options.Grid` a typed choice with one value (R-1.1). |

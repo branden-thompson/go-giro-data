@@ -27,7 +27,7 @@ may rename, never drop.
 
 | # | Requirement | Source | Instrument |
 |---|---|---|---|
-| R-1.1 | MUF(3000) and foF2 over the globe for a UTC hour, on a grid a go-tuiMaps host can hand in directly (outer edges -180..180, -90..90; no antimeridian crossing), 2° by default, 1° as an option. MUF(3000) is foF2 × M(3000)F2 by definition | G-R1 | `TestAGlobalFieldIsAValidTuimapsGrid`, `TestTheGridStepIsTheHostsChoice` |
+| R-1.1 | MUF(3000) and foF2 over the globe for a UTC hour, on a grid a go-tuiMaps host can hand in directly (outer edges -180..180, -90..90; no antimeridian crossing), 2° (the only step in v0.1.0, a typed choice so a finer step can be added later, watchpost D-125). MUF(3000) is foF2 × M(3000)F2 by definition | G-R1; D-125 | `TestAGlobalFieldIsAValidTuimapsGrid`, `TestTheGridIsTwoDegrees` |
 | R-1.2 | Every field carries the time it is valid for, the time it was computed, and its sources | G-R1, G-R4 | `TestAFieldSaysWhenAndFromWhat` |
 | R-1.3 | **Hours ahead (D-50, D-103, D-109):** for each hour up to 24 h ahead, the climatology's fields for that hour (the same hours the day's cache holds, R-8.1), each marked typical rather than forecast; the snapshot carries the typical error and its basis (PLAN's week, `02-analysis/evidence/week.py`), so the host can say it. No field from the day before is used. **Floor (D-75):** met by construction | D-50, D-75, D-103, D-109 | `TestHoursAheadAreTheClimatology`, `TestAnHourAheadIsMarkedTypical`, `TestTheTypicalErrorCarriesItsBasis` |
 
