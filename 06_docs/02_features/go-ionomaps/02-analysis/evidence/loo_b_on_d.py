@@ -1,12 +1,13 @@
-"""Path B on D, prototyped offline: GloTEC background + spatial GP of station residuals (iono - GloTEC),
-scored leave-one-station-out. A copy of loo.py with the background swapped; see loo.py for the method.
+"""Path B on D, prototyped offline (DISCOVER, one day): the GloTEC background plus a spatial GP of station
+residuals (iono - GloTEC), scored leave-one-station-out. A copy of loo.py with the background swapped; see
+loo.py for the method. Not PLAN's hybrid (watchpost D-101), which week.py scores.
 
 Reads pairs-<day>.txt (station, hour, iono, glotec, clim) and the stations' coordinates from the fc files.
 Kernel: exponential in great-circle distance (positive definite on the sphere, Gneiting 2013).
-For every hour and every station with a pair, the station is held out, the residual (iono - clim) is
-predicted from the other stations that hour, and clim + prediction is scored against the held-out reading.
+For every hour and every station with a pair, the station is held out, the residual (iono - GloTEC) is
+predicted from the other stations that hour, and GloTEC + prediction is scored against the held-out reading.
 
-Usage: loo_hybrid.py YYYY-MM-DD   (reads pairs-YYYY-MM-DD.txt and burst-YYYY-MM-DD/fc_*.txt)
+Usage: loo_b_on_d.py YYYY-MM-DD   (reads pairs-YYYY-MM-DD.txt and burst-YYYY-MM-DD/fc_*.txt)
 """
 import glob, math, re, sys
 import numpy as np

@@ -250,7 +250,9 @@ Lc, Nc, BC = tune(clim[CBEST])
 print(f"week: {times[0]:%Y-%m-%d %H:%M} to {times[-1]:%Y-%m-%d %H:%M}, {len(times)} grids, {len(STS)} stations, "
       f"{len(ALL)} pairs (tune: first 3 days {len(TUNE)}, test: rest {len(TEST)})")
 print(f"F10.7 (day): {', '.join(f'{d:%m-%d} {F107[d]:.0f}' for d in sorted(by_day))}")
-print(f"stations with paired soundings: {len(STS)} of {len(glob.glob(f'{D}/fc_*.txt'))} fetched (the rest had none at CS >= {CS_MIN})")
+fetched = glob.glob(f"{D}/fc_*.txt")
+no_rows = sum(1 for p in fetched if not station(p)[1])
+print(f"stations with usable soundings: {len(STS)} of {len(fetched)} fetched ({no_rows} had no sounding at CS >= {CS_MIN})")
 print(f"kernel tuned: B on D L={Lg} km noise={Ng}; B on C L={Lc} km noise={Nc}; the climatology: {CBEST[0]} / F10.7 {CBEST[1]} (as shipped)")
 
 print("\n1. Climatologies (all pairs): foF2 RMS / bias | MUF(3000) RMS / bias")

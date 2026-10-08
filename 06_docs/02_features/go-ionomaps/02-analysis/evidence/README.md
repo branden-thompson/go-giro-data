@@ -9,12 +9,11 @@ this library's R-4.3). Re-running needs the data re-fetched under the throttle (
 |---|---|
 | `burst.py` | the one-sitting fetch (D-38): every station in GIRO's form list for one day, then 24 GloTEC grids; stops on the first denial and probes recovery. Needs the form page saved as `../scaled.html` |
 | `burst_rest.py` | the two passes run by hand after `burst.py` stopped, which went past D-38 (the agent's error E-1) |
-| `day.sh` | a five-a-day plan under D-18; **never run** (D-38 replaced it) |
 | `pairs.py` | ionosonde vs GloTEC-derived vs PyIRI climatology, at grid times; F10.7 = 100 by default |
 | `loo.py` | path B (stations on climatology), leave-one-station-out |
-| `loo_hybrid.py` | path B on D (stations on GloTEC), leave-one-station-out |
+| `loo_b_on_d.py` | path B on D (stations on GloTEC), leave-one-station-out, one day (DISCOVER); not PLAN's hybrid, which `week.py` scores |
 | `subsets.py` | the figures `pairs.py` and `loo*.py` do not print: biases and quality subsets, B on D's MUF(3000) (3.97 and 3.22 MHz), and B on D by station |
-| `dry_fetch.py` | PLAN's dry-run fetch (watchpost FR-10.6): a week of GIRO readings for the live stations in one burst, then 3-hourly GloTEC grids, one every 10 minutes (D-39) |
+| `dry_fetch.py` | PLAN's dry-run fetch (watchpost FR-10.6): a week of GIRO readings for the live stations in one burst, then 3-hourly GloTEC grids, one every 10 minutes (D-39); GIRO stops for the run once the full back-off is refused |
 | `week.py` | PLAN's dry run, scored: climatologies (raw and refit, two F10.7 rules), GloTEC, B on D and B on C held out, by region, distance and station, with signed bias; kernels tuned on the first three days, scored on the rest; the forecast at +3 h and +12 h. Runs under PyIRI 0.1.7 (Python 3.12, watchpost D-86) |
 | `plan-dry-run/` | PLAN's spikes, the G1 harness, the frame benchmark, the request logs and the WSPR query (watchpost D-124); its own README |
 | `offset.py` | the live offset (watchpost D-105): stations minus GloTEC foF2 at each grid time, and how often it leaves a 2-SD band; runs `week.py` first |
@@ -25,7 +24,7 @@ coefficients scored here are PyIRI's raw CCIR tables, not the NRL refits go-iono
 D-43); the dry run scores those.
 
 **Reproducing the published numbers.** `pairs.py burst-2026-10-05 100` gives 566 pairs from 28 stations;
-then `loo.py 2026-10-05`, `loo_hybrid.py 2026-10-05` and `subsets.py 2026-10-05` give every figure wave 2 and
+then `loo.py 2026-10-05`, `loo_b_on_d.py 2026-10-05` and `subsets.py 2026-10-05` give every figure wave 2 and
 the red team quote. Round 1's three reproducing reviewers and round 2's Docs reviewer matched them.
 
 **Their limits, beside every quote of them:**

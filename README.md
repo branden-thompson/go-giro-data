@@ -4,12 +4,14 @@ Ionospheric maps for Go programs: maximum usable frequency (MUF) and the F2 laye
 frequency (foF2), as fields a terminal map can draw, with each amateur band's status between its upper
 limit (MUF, foF2) and its lower limit (D-layer absorption).
 
-**Status: in discovery.** No code yet. The design is recorded in `06_docs/02_features/go-ionomaps/`.
+**Status: in planning.** No code yet. The design is recorded in `06_docs/02_features/go-ionomaps/`.
 
 ## How it works (planned)
 
-Station readings from the Global Ionospheric Radio Observatory (GIRO) are assimilated over a background
-derived from NOAA SWPC's GloTEC, with a climatology (a Go port of NASA's PyIRI method) as the fallback.
+Station readings from the Global Ionospheric Radio Observatory (GIRO) are assimilated: foF2 over a
+background derived from NOAA SWPC's GloTEC, M(3000)F2 over a climatology (a Go port of NASA's PyIRI
+method). The climatology also gives the hours ahead, labelled typical, and stands in for GloTEC when it is
+missing.
 The host supplies the network; the library opens no connection of its own.
 
 ## Licence and data terms

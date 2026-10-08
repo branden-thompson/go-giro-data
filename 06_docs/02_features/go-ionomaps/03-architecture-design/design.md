@@ -25,7 +25,8 @@ flowchart TB
   GT["internal/glotec<br/>typed GeoJSON, foF2 from NmF2"]
   DR["internal/drap<br/>D-RAP table"]
   SC["internal/scales<br/>NOAA R, S, G (D-88)"]
-  CL["internal/climatology<br/>PyIRI method over Tables"]
+  CL["internal/climatology<br/>PyIRI method over Tables;<br/>the day's hours cached by (UTC hour, F10.7 mean, month)"]
+  MC["internal/magcoords<br/>QD latitude and MLT from IGRF-14 (D-107)"]
   AS["internal/assimilate<br/>GP on the sphere: foF2 over GloTEC,<br/>M(3000)F2 over the climatology (D-101)"]
   LIM["internal/limits<br/>P.533 MUF, daytime absorption, disturbed"]
   FC["internal/forecast<br/>hours ahead: the climatology, marked typical (D-109)"]
@@ -39,6 +40,7 @@ flowchart TB
   AS --> CL
   API --> LIM
   API --> FC --> CL
+  CL --> MC
   API --> TM
 ```
 
@@ -99,7 +101,7 @@ test runs the climatology on supplied tables (R-4.4), so the refits can be repla
 
 ## What the dry run decides here
 
-- the kernel length and noise;
+- the kernel length and noise: measured on PLAN's week, foF2 over GloTEC L = 2000 km, noise 0.5; M(3000)F2 over the climatology L = 2000 km, noise 0.2 (relative to the residuals' variance; `week.py`), with the values' basis carried as constants (A-29);
 - the hours ahead's typical error (watchpost D-109);
 - the near-vertical radius: the host's to give (watchpost D-100: 400 km by default, a Setting);
 - the F10.7 rule;

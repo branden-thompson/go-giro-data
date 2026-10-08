@@ -1,10 +1,10 @@
 ---
 title: "go-ionomaps — REQUIREMENTS"
 date: 2026-10-06
-phase: DISCOVER
+phase: PLAN
 sev: SEV-0
 authority: HUM LEAD
-status: "APPROVED at the DISCOVER gate (watchpost D-84), normative. The path is B on D (watchpost D-40): GIRO station residuals assimilated over a GloTEC-derived background, a PyIRI-port climatology as the fallback. Revised after the DISCOVER-exit red team, round 1 (watchpost 08-reports/red-team-discover.md)."
+status: "APPROVED at the DISCOVER gate (watchpost D-84), normative. The current hour is the hybrid (watchpost D-40, D-101): GIRO residuals of foF2 over GloTEC and of M(3000)F2 over a PyIRI-port climatology, which is also every hour ahead (D-109) and the foF2 fallback. Revised after both red teams (watchpost 08-reports/red-team-discover.md, red-team-plan.md) and PLAN's rulings (watchpost D-85 to D-127)."
 ---
 
 # Requirements
@@ -55,6 +55,7 @@ may rename, never drop.
 | R-3.2 | A partly covered field says which part is measured and which is background | G-M4 | `TestAFieldSaysWhereItIsMeasured` |
 | R-3.3 | **Physical ranges (IS-3):** foF2, hmF2, NmF2, M(3000)F2, confidence scores, coordinates and times are checked against physical bounds (no time in the future or outside the asked window); counts of stations and grid cells are capped; rejected values are counted and reported; **no NaN or Inf ever leaves the library**; station codes match `^[A-Z0-9]{5}$` and reach URLs only through `url.Values` | IS-3 | `FuzzNoNaNOrInfLeavesTheLibrary`, `TestOutOfRangeReadingsAreRejectedAndCounted`, `TestStationCodesAreChecked` |
 | R-3.4 | **The requester's IP (IS-2):** GIRO's replies carry the requester's IP in a header line; header and comment lines are dropped before parsing; no error quotes input text; nothing the library returns or stores holds a reply's raw text | IS-2 | `TestReplyHeadersNeverLeaveTheParser`, `TestErrorsNeverQuoteInput` |
+| R-3.5 | **The host's inputs are bounded (I-3):** `New` refuses an unknown grid step (D-125); `Bands`, `Path` and `Reach` refuse a non-finite or out-of-range origin, a radius that is not positive or above 2000 km, and a frequency outside 1.8 to 30 MHz; an hour outside the snapshot's hours returns no data; no answer ever returns NaN or Inf, and no answer makes a fetch | I-3, I-9 | `TestTheAnswersRefuseBadInput`, `FuzzAnswersNeverReturnNaN`, `TestTheAnswersFetchNothing` |
 
 ## R-4 — Terms travel with the data (G-R4, GR-4; G-M1)
 
@@ -70,11 +71,11 @@ may rename, never drop.
 | # | Requirement | Source | Instrument |
 |---|---|---|---|
 | R-5.1 | The library opens no network connection of its own; the host supplies the fetcher (User-Agent, timeout). **The fetcher must not retry a 429** and must hand the library each response's status and headers, so the library alone decides a back-off (watchpost's httpx retries a 429 by default, `platform/httpx/httpx.go:926-928`) | GR-5; IS-1, CQ-T1, PF-F1 | `TestTheLibraryOpensNoConnectionOfItsOwn`, `TestA429IsSeenByTheLibraryNotRetried` (a counting fake server) |
-| R-5.2 | An update asks only for what it needs: from GIRO, only the readings since the last one held (not the whole day again) | PF-F2 | `TestAnUpdateAsksOnlySinceTheLastReading` |
+| R-5.2 | An update asks only for what it needs: from GIRO, only the readings since the last one held (not the whole day again), and only the characteristics used (foF2 and M(3000)F2, D-101); the library holds the last reading per station, no more (P-11) | PF-F2 | `TestAnUpdateAsksOnlySinceTheLastReading` |
 | R-5.3 | **Throttle behaviour (D-39):** one update's GIRO requests in a burst of at most 40, at most hourly, at most 2 a minute sustained; a 429 stops the update and backs off 60 s doubling to 15 minutes; the last good field is kept with its age; a `Retry-After`, if ever sent, is honoured. NOAA grids at most 6 an hour. Updates happen only when the host asks (D-76). **The rotation probe counts inside the 40 (D-87):** no update makes more than 40 GIRO requests | D-38, D-39, D-76, D-87 | `TestAnUpdateNeverExceedsItsBurst`, `TestA429BacksOff`, `TestRetryAfterIsHonouredWhenSent` |
 | R-5.4 | **Pull (D-42):** the host asks for an update; the library starts no goroutines or timers; it holds the throttle state, and an update asked too soon is answered from the last good field with its age and the reason | D-42 | `TestTheLibraryStartsNoGoroutines`, `TestAnEarlyUpdateAnswersFromTheLastField` (a fake clock) |
 | R-5.5 | **The live-station list (D-51, D-87):** a shipped seed list (codes and positions only); a station dropped after 3 days with no data; one not-live station probed per update, in rotation; with 40 or more live, 39 polled in rotation plus the probe (D-87), those left out asked first next time; a cold start never probes in a burst | D-51 | `TestAColdStartUsesTheSeedWithoutABurst`, `TestADarkStationIsDroppedAfterThreeDays`, `TestOneProbePerUpdate`, `TestAboveFortyStationsRotate` |
-| R-5.6 | **One owner of the throttle per process (PF-F8):** a library object is safe for concurrent use and merges overlapping updates into one; a host with several callers (watchpost's readout, Propagation mode and recorder) shares one object and one computed field | PF-F8 | `TestOverlappingUpdatesMergeIntoOne`, `go test -race` |
+| R-5.6 | **One owner of the throttle per process (PF-F8):** a library object is safe for concurrent use and merges overlapping updates into one; a host with several callers shares one object and one computed field (watchpost's Propagation mode, from the Observer and from the Broadcaster's console) | PF-F8 | `TestOverlappingUpdatesMergeIntoOne`, `go test -race` |
 | R-5.7 | **Between GIRO's asks (D-94):** an update asked before GIRO is due fetches only NOAA's newest grid, D-RAP and the scales, and re-assimilates the last readings held over the new background, each reading carrying its age; GIRO is never asked more than hourly | D-39, D-94 | `TestAnUpdateBetweenGIROAsksReusesTheLastReadings`, `TestGIROIsNeverAskedMoreThanHourly` |
 
 ## R-6 — Reproducible (G-R6; G-M2)
@@ -89,7 +90,7 @@ may rename, never drop.
 |---|---|---|---|
 | R-7.1 | Every exported function cites the published work it implements (paper, recommendation, or PyIRI under MIT with its notice kept) | G-R8; D-53 | a citation check over exported functions |
 | R-7.2 | `arodland/prop` (no licence) is never opened again; it was read through the GitHub API in 0.18.0's research and no code was copied. Nothing comes from IRI's Fortran, whose licence grants no distribution. PLAN carries a provenance table, one row per component with its source | D-53; wave 1 | the provenance table in PLAN |
-| R-7.3 | Sunspot numbers on SILSO's version-2 scale are converted to the version-1 scale (k = 0.6) the ITU coefficients use; foF2 is capped at R12 = 160 | wave 1 (P.1239) | `TestTheSunspotScaleIsConverted`, `TestFoF2IsCappedAt160` |
+| R-7.3 | **The climatology's solar input is F10.7** (watchpost D-104; PyIRI's refits take F10.7 directly), so no sunspot-scale conversion is needed; any saturation at high flux follows PyIRI's own rule, cited (A-29) | D-104; C-N | `TestTheClimatologyTakesF107`, `TestHighFluxFollowsPyIRI` |
 
 ## R-8 — Bounded cost (G-R7, GR-6; G-G1)
 
@@ -102,13 +103,14 @@ may rename, never drop.
 
 | # | Requirement | Role | Instrument |
 |---|---|---|---|
-| R-9.1 | A climatology: PyIRI's method, ported (foF2 and M(3000)F2, whole globe, every hour), on the coefficients D-43 ships | the fallback when GloTEC is missing or stale. (The D-23 baseline is an offline measurement and needs no port, CQ-C1) | `TestTheFallbackMatchesPyIRI` (against PyIRI's published outputs) |
+| R-9.1 | A climatology: PyIRI's method, ported (foF2 and M(3000)F2, whole globe, every hour), on the coefficients D-43 ships | on the main path (D-101, D-109): M(3000)F2's background every hour, every hour ahead, and foF2's fallback when GloTEC is missing or stale. (The D-23 baseline is an offline measurement and needs no port, CQ-C1) | `TestTheFallbackMatchesPyIRI` (against PyIRI's published outputs) |
 | R-9.2 | Spatial assimilation on the sphere with a valid kernel (Gneiting 2013) of station residuals (ionosonde minus background) **for both foF2 and M(3000)F2**, so MUF(3000) gains from the stations as foF2 does. **The hybrid (D-101):** foF2's residuals are taken over GloTEC, M(3000)F2's over the climatology (the week: MUF 3.26 MHz held out, against 3.41 with both over GloTEC) | the assimilation | `TestTheKernelIsValidOnTheSphere`, G-M3 for foF2 and MUF(3000) |
 | R-9.3 | foF2 derived from GloTEC's NmF2, the background for foF2; M(3000)F2's background is the climatology (D-101); GloTEC's hmF2 is not used | the background | `TestFoF2FromNmF2`, `TestM3000BackgroundIsTheClimatology`, G-M3 |
 | R-9.4 | GIRO readings under D-39's throttle, with confidence scores used | the assimilation's input | `TestLowConfidenceReadingsAreDropped` |
 | R-9.5 | **The climatology's solar input (D-104):** the mean of NOAA SWPC's daily observed F10.7 over the 30 days before the day, from `text/daily-solar-indices.txt` (public domain), fetched at most once a day with validators; a missing day is skipped; when the file is missing the last mean held is used and its age said; the value used is carried in the snapshot | D-104 | `TestTheF107RuleIsTheThirtyDayMean`, `TestAMissingSolarFileUsesTheLastMeanWithItsAge`, `FuzzSolarIndicesParser` |
 | R-9.6 | **The offset (D-105):** each update carries the live offset (the mean of station foF2 minus GloTEC foF2) and a typical offset, seeded at −0.5 MHz and refined by the object's own updates (nothing persisted), with their spread; with no station readings held, the host may ask for GloTEC corrected by the typical offset, named in the snapshot | D-105 | `TestTheLiveOffsetIsCarried`, `TestTheTypicalOffsetLearnsFromUpdates`, `TestTheNoReadingsCorrectionIsNamed` |
 | R-9.7 | **Magnetic coordinates of our own (D-107):** the climatology's quasi-dipole latitude and magnetic local time come from a table the library generates at build time from IGRF-14 (field lines traced to the apex; Richmond 1995; MLT per Laundal & Richmond 2017). It agrees with a committed sample of PyIRI's `Apex.nc` within a tolerance set in BUILD. A test fails within a set margin of IGRF-14's last valid year. Past that year the snapshot says the coordinates are extrapolated | D-107 | `TestOurCoordinatesAgreeWithApex`, `TestTheMagneticModelIsNotNearItsEnd`, `TestExtrapolatedCoordinatesAreSaid`, `TestIGRFMatchesItsPublishedValues` |
+| R-9.8 | **Constants measured on PLAN's week, kept with their basis (L-F4, A-29):** the kernel parameters, the typical offset's seed (−0.5 MHz) and its 2-SD band (0.45), the hours ahead's typical error, and the 2000 km "about typical" distance live in one table, each with where and when it was measured; the snapshot carries the basis so the host can say it; a test fails 12 months after a constant's measurement date, forcing a re-measure | L-F4; D-105, D-108, D-109, D-116 | `TestEveryConstantCarriesItsBasis`, `TestAConstantExpiresAfterAYear` |
 
 **Not in v0.1.0 (watchpost D-106, CQ-N1 closed):** an effective sunspot number fitted from measurements (Secan & Wilkinson
 1997). On PLAN's week its proxy gained nothing over the climatology, and the stations assimilated over the
@@ -118,7 +120,7 @@ climatology (the fallback) did better.
 
 | # | Requirement | Source | Instrument |
 |---|---|---|---|
-| NFR-1 | A gate of the library's own (tests with `-race`, vet, format, fuzz, P10) from the first Go code, and **a pinned `govulncheck` from the first dependency** | GC-5; IS-8 | the gate |
+| NFR-1 | A gate of the library's own (tests with `-race`, vet, format, fuzz, P10) from the first Go code, **with a pinned `govulncheck` from the first commit** (the standard library has advisories too; I-10) | GC-5; IS-8; I-10 | the gate |
 
 ## What PLAN's dry run must measure (REFLECT L1; D-49)
 

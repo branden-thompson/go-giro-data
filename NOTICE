@@ -5,7 +5,7 @@ The MIT licence covers this repository's code only. It does not relicense any da
 Sources the library reads, or will read, and their terms:
 
 1. GIRO, the Global Ionospheric Radio Observatory (Lowell GIRO Data Center, UMass Lowell)
-   Station readings (foF2, M(3000)F2, hmF2), fetched by the host at run time; never stored in this
+   Station readings (foF2, M(3000)F2), fetched by the host at run time; never stored in this
    repository. Licence: CC BY-NC-SA 4.0. Access is offered "only for educational and non-commercial
    research purposes" (giro.uml.edu/didbase/RulesOfTheRoad.html).
    Cite: Reinisch, B. W., and I. A. Galkin, Global ionospheric radio observatory (GIRO),
@@ -20,10 +20,16 @@ Sources the library reads, or will read, and their terms:
 
 3. PyIRI (NASA / U.S. Naval Research Laboratory), MIT licence, Copyright (c) 2023 victoriyaforsythe.
    The climatology is a Go port of PyIRI's method. The spherical-harmonic coefficient tables shipped
-   (when they are) are NRL's refits from PyIRI. They were fitted to the CCIR and URSI foF2 and M(3000)F2
+   (when they are) are NRL's refits from PyIRI, reaching the tree as a one-time plain-text export with the
+   source files' checksums (watchpost D-114); a sample of PyIRI's Apex coordinates is kept as a test oracle
+   only (watchpost D-107). They were fitted to the CCIR and URSI foF2 and M(3000)F2
    maps, whose own provenance is CCIR/ITU and URSI; the raw CCIR/URSI tables are not shipped.
    Cite: Forsythe, V. V., et al. (2024), PyIRI: whole-globe approach to the International Reference
    Ionosphere modeling implemented in Python, Space Weather, 22, doi:10.1029/2023SW003739.
 
-4. ITU-R P.533 and P.1239: methods implemented from the published recommendations; no recommendation
+4. IGRF-14, the International Geomagnetic Reference Field (IAGA, Working Group V-MOD): its published
+   coefficients generate the library's magnetic-coordinate table (watchpost D-107). Freely available from
+   IAGA; the terms and citation are recorded from IAGA's release when the coefficients are committed (G3.5).
+
+5. ITU-R P.533 and P.1239: methods implemented from the published recommendations; no recommendation
    text or tables are reproduced.

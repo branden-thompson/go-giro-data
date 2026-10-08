@@ -56,7 +56,9 @@ a, b = START.strftime("%Y%%2F%m%%2F%d"), END.strftime("%Y%%2F%m%%2F%d")
 for st in stations:
     url = (f"https://lgdc.uml.edu/fastchar/getbest?ursiCode={st}&charName=foF2,MUF%28D%29,M%28D%29,hmF2&DMUF=3000"
            f"&fromDate={a}+00%3A00%3A00&toDate={b}+23%3A59%3A59")
-    with_backoff(url, f"{OUT}/fc_{st}.txt")
+    if with_backoff(url, f"{OUT}/fc_{st}.txt") in (429, 503, -1):
+        print("GIRO refused after the full back-off: stopping GIRO for this run (D-39)", flush=True)
+        break
 
 d = START
 while d <= END:
