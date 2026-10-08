@@ -29,7 +29,6 @@ flowchart TB
   MC["internal/magcoords<br/>QD latitude and MLT from IGRF-14 (D-107)"]
   AS["internal/assimilate<br/>GP on the sphere: foF2 over GloTEC,<br/>M(3000)F2 over the climatology (D-101)"]
   LIM["internal/limits<br/>P.533 MUF, daytime absorption, disturbed"]
-  FC["internal/forecast<br/>hours ahead: the climatology, marked typical (D-109)"]
   TM["internal/terms<br/>sources, terms, citations"]
   API --> THR --> ST --> GIRO
   API --> GT
@@ -39,7 +38,7 @@ flowchart TB
   AS --> GT
   AS --> CL
   API --> LIM
-  API --> FC --> CL
+  API --> CL
   CL --> MC
   API --> TM
 ```
@@ -50,7 +49,7 @@ flowchart TB
 2. **Stations** (R-5.5): the live list, rotation and one probe, never more than 40 requests together (D-87).
 3. **Fetch**, through the host's fetcher (R-5.1):
    - GIRO readings since the last held (R-5.2);
-   - GloTEC's newest grid (validators, so a 304 when unchanged);
+   - GloTEC's newest grid, found by its timestamped name or the directory index (W0.0 measures which; a new grid is never a 304, D-111);
    - D-RAP;
    - NOAA's space-weather scales (D-88);
    - NOAA's daily solar indices, at most once a day (watchpost D-104).
@@ -63,7 +62,7 @@ flowchart TB
    - else the climatology (named, FR-5.2).
 6. **Assimilate** (R-9.2): station residuals for foF2 (over GloTEC) and M(3000)F2 (over the climatology), a GP on the sphere each, added to its background.
 7. **Hours ahead** (R-1.3, watchpost D-109): each hour ahead is the climatology's hour from the day's cache, marked typical, with the typical error and its basis.
-8. **Snapshot:** fields, valid and computed times, sources, background, age.
+8. **Snapshot:** fields, computed time, the inputs' own times (GloTEC's valid time, the oldest reading, D-RAP's), backgrounds per field, sources. NOAA comes first, so a first snapshot without stations precedes the GIRO burst (watchpost architecture, "Opening the mode").
 
 The answers (`Bands`, `Path`, `Reach`) are pure functions of a snapshot (R-2), so a host can call them off
 its UI goroutine without touching the network.
@@ -78,7 +77,6 @@ source in its doc comment (R-7.1).
 | foF2 from NmF2 | f = 8.98×10⁻⁶ √N (plasma frequency) | standard ionospheric physics; ITU-R P.1239 |
 | Climatology | spherical-harmonic and Fourier evaluation of foF2 and M(3000)F2 for a month, solar level and hour | **PyIRI (MIT, ported)**, `sh_library.py`; Forsythe et al. 2024 (doi:10.1029/2023SW003739); the NRL refits (D-43) |
 | Magnetic coordinates | IGRF-14 field, field lines traced to the apex; quasi-dipole latitude from the apex height; MLT from the subsolar point's quasi-dipole longitude; generated at build time | IAGA IGRF-14 (its release paper, cited in BUILD); Richmond 1995 (J. Geomag. Geoelectr. 47, 191-212); Laundal & Richmond 2017 (Space Sci. Rev.); checked against PyIRI's `Apex.nc` (MIT) (watchpost D-107) |
-| Sunspot scale | SILSO v2 to the v1 scale (k = 0.6); foF2 capped at R12 = 160 | ITU-R P.1239-4; Lockwood et al. 2016 |
 | Assimilation | Gaussian-process regression of station residuals; exponential kernel in great-circle distance | Rasmussen & Williams 2006; Gneiting 2013 (doi:10.3150/12-BEJSP06); validated against Galkin et al. 2012 (IRTAM, doi:10.1029/2011RS004952) |
 | Hours ahead | the climatology for each hour, marked typical; its error measured on PLAN's week | watchpost D-109; `02-analysis/evidence/week.py` |
 | MUF for a path | basic MUF from foF2, M(3000)F2 and distance | ITU-R P.533-14 §3.4-3.5, equations checked against the recommendation's worked values (R-2.7) |

@@ -1,5 +1,10 @@
-"""PLAN's dry run, scored (watchpost FR-10.6): a week of GIRO soundings against GloTEC, the climatologies
-and B on D, for foF2 and MUF(3000), held out.
+"""PLAN's dry run, scored (watchpost FR-10.6): a week of GIRO soundings against GloTEC, the climatologies,
+B on D and the hybrid (watchpost D-101), for foF2 and MUF(3000), held out; the oracle for go-ionomaps G10.4.
+
+Sections: 1 the climatologies; 2-3 held out, test days and whole week, by region (B on D, the hybrid,
+GloTEC, B on C, an effective-index proxy, the climatology as shipped); 4 by distance; 5 by station; 6 the
+forecast candidates; 7 by day; 8 quiet against the storm; 9 skill by lead; 10 band answers of the blends
+(watchpost D-130); 11 the hours ahead's typical error by distance band (watchpost D-134).
 
 Usage: week.py DIR DSI DISTURBED
   DIR  holds dry_fetch.py's output: fc_*.txt (GIRO) and glotec_*.geojson (NOAA, 3-hourly)
@@ -40,7 +45,7 @@ warnings.filterwarnings("ignore")
 if len(sys.argv) != 4:
     sys.exit("usage: week.py DIR DSI DISTURBED (see the docstring)")
 D, DSI = sys.argv[1], sys.argv[2]
-bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")}
+bad = {datetime.strptime(d, "%Y-%m-%d").date() for d in sys.argv[3].split(",")}  # checked against the week below
 MIN_F107_DAYS = 20   # the 30-day mean is refused below this many observed days
 PACIFIC = {"EA653", "LL721", "WA619", "GU513"}
 CS_MIN = 70
@@ -107,6 +112,8 @@ grids = [grid(p) for p in sorted(glob.glob(f"{D}/glotec_*.geojson"))]
 if not grids or not coords:
     sys.exit(f"week.py: no grids or no stations under {D}")
 times = [g[0] for g in grids]
+if not bad <= {t.date() for t in times}:
+    sys.exit(f"week.py: storm days {sorted(bad - {t.date() for t in times})} are not in the week's grids")
 STS = sorted(coords)
 
 
@@ -235,8 +242,9 @@ def tune(back):
     return best[1], best[2], best[3]
 
 
-# the climatology is the one that ships, fixed rather than chosen on the data: NRL's CCIR refit (watchpost D-43,
-# A-28) with the 30-day mean F10.7 (D-104). Section 1 still ranks every variant, on the whole week.
+# the climatology is the one that ships: NRL's CCIR refit (watchpost D-43) with the 30-day mean F10.7 (D-104).
+# A-28 chose CCIR over URSI on this same week's figures (section 1), so the choice is not independent of the
+# data scored here; fresh days in BUILD (watchpost D-132) are the independent check.
 def clim_rms(c):
     fo, mf = errors(c, ALL)
     return rms(fo) + rms(mf) / 3.0
@@ -458,4 +466,14 @@ for h in (3, 12):
         c_right = sum(open_set(c[k][0] * c[k][1]) == obs_set(k) for k in diff)
         print(f"   +{h:2d} h {label:44s} differs from climatology's bands in {len(diff)} of {len(common)} "
               f"({100 * len(diff) / len(common):.0f}%); of those, forecast right {f_right}, climatology right {c_right}, neither {len(diff) - f_right - c_right}")
+
+# ---------- the hours ahead's typical error, by distance band (watchpost D-134) ----------
+print("\n11. The hours ahead's typical error: the climatology held out on the test days, by distance to the nearest "
+      "other reporting station (foF2 | MUF(3000) RMS, MHz)")
+for lo, hi in ((0, 500), (500, 1000), (1000, 2000), (2000, 20000)):
+    ks = [k for k in COMMON_TEST if lo <= nearest[k] < hi]
+    if not ks:
+        sys.exit(f"week.py: no test pairs in the {lo}-{hi} km band")
+    fo, mf = errors(C, ks)
+    print(f"   {lo:5d}-{hi:5d} km (n={len(ks):3d})  {rms(fo):.2f} | {rms(mf):.2f}")
 

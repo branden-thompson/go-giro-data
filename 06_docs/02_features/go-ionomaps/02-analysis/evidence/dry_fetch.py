@@ -1,8 +1,8 @@
 """PLAN's dry run, the fetch (watchpost FR-10.6): a week of GIRO readings and 3-hourly GloTEC grids.
 
 Under the feature's throttle (watchpost D-39): GIRO's live stations in one burst of at most 40, one request
-per station for the whole range; on a 429 the run stops that source and backs off 60 s, doubling to 15
-minutes; NOAA grids at most 6 an hour (one every 10 minutes). Every response's status, size, time and
+per station for the whole range; on a 429 it waits 60, 120, 240 and 480 s (15 minutes in all), retrying after each, then stops
+that source for the run; NOAA grids at most 6 an hour (one every 10 minutes). Every response's status, size, time and
 rate-related headers are logged; CDN location headers are never kept (D-83).
 
 Usage: dry_fetch.py OUTDIR START END STATIONS_FILE   (dates YYYY-MM-DD, inclusive)
@@ -66,7 +66,10 @@ while d <= END:
         name = f"glotec_icao_{d.strftime('%Y%m%d')}T{hh:02d}0500Z.geojson"
         path = f"{OUT}/{name}"
         if not os.path.exists(path):
-            with_backoff(f"https://services.swpc.noaa.gov/products/glotec/geojson_2d_urt/{name}", path)
+            if with_backoff(f"https://services.swpc.noaa.gov/products/glotec/geojson_2d_urt/{name}", path) in (429, 503, -1):
+                print("NOAA refused after the full back-off: stopping NOAA for this run", flush=True)
+                d = END
+                break
             time.sleep(600)  # D-39: NOAA grids at most 6 an hour
     d += timedelta(days=1)
 print("done", flush=True)

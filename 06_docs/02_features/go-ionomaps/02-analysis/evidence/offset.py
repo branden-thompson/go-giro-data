@@ -1,7 +1,7 @@
 """The live offset (watchpost D-105): at each grid time, the mean over reporting stations of sounding foF2 minus
 GloTEC foF2, which is what the assimilation's mean term removes; and how often it leaves a 2-SD band.
 
-Usage: offset.py DIR DSI   (the same inputs as week.py, which it runs first)
+Usage: offset.py DIR DSI DISTURBED   (the same arguments as week.py, which it runs first)
 """
 import contextlib, io, os, runpy, statistics as stt, sys
 
