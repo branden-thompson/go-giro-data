@@ -1,7 +1,7 @@
 ---
 title: "go-ionomaps — REQUIREMENTS"
 date: 2026-10-06
-phase: PLAN
+phase: BUILD
 sev: SEV-0
 authority: HUM LEAD
 status: "APPROVED at the DISCOVER gate (watchpost D-84), normative. The current hour is the hybrid (watchpost D-40, D-101): GIRO residuals of foF2 over GloTEC and of M(3000)F2 over a PyIRI-port climatology, which is also every hour ahead (D-109) and the foF2 fallback. Revised after both red teams (watchpost 08-reports/red-team-discover.md, red-team-plan.md) and PLAN's rulings (watchpost D-85 to D-127)."
