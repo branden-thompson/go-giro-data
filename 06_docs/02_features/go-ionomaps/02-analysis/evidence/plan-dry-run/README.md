@@ -12,6 +12,7 @@ tree; the re-fetch is `../dry_fetch.py` under the throttle (D-39).
 | `g1/` | The G1 harness: `run.exp` (expect, under `sandbox-exec` with the network denied, ending by signal) and `sample.sh` (`ps` every 30 s), with the 10-minute dry run's samples | G1, D-95 |
 | `logs/requests.jsonl` | Every request of the week's fetch: time, URL, status, bytes, seconds, rate headers only | NFR-3, D-39 |
 | `logs/requests.log` | The other PLAN requests (D-RAP's page, the scales, the solar and geomagnetic indices, wspr.live) | NFR-3 |
+| `logs/w00-requests.log` | BUILD's W0.0: three gzip-asked requests (the GloTEC index, a grid, D-RAP) and their size, encoding and validator headers | watchpost D-111, D-141 |
 | `logs/wspr_nvis13.sql` | The near-vertical density query at +13 dB, ground wave removed | D-91 |
 
 Every Go file is headed as a placeholder; nothing here is imported by the library.
