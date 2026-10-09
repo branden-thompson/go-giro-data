@@ -33,7 +33,8 @@ func All() []Source {
 			Terms: "public domain; no endorsement by NOAA or the NWS is implied"},
 		{Name: "PyIRI", Terms: "MIT licence, Copyright (c) 2023 victoriyaforsythe",
 			Cite: "Forsythe, V. V., et al. (2024), PyIRI: whole-globe approach to the International Reference Ionosphere modeling implemented in Python, Space Weather, 22, doi:10.1029/2023SW003739"},
-		{Name: "IGRF-14", Terms: "freely available from IAGA"},
+		{Name: "IGRF-14", Terms: "freely available from IAGA",
+			Cite: "IAGA Working Group V-MOD, the International Geomagnetic Reference Field, 14th generation (IGRF-14), coefficients as published by IAGA in igrf14coeffs.txt"},
 		{Name: "ITU-R P.533", Terms: "the published recommendation; no text or tables reproduced"},
 		{Name: "P.1239", Terms: "the published recommendation; no text or tables reproduced"},
 	}
@@ -56,5 +57,7 @@ func Datasets() []Dataset {
 		{Path: "internal/climatology/testdata/pyiri-golden.txt", Source: "PyIRI"},
 		{Path: "tools/tables/export/golden-day.txt", Source: "PyIRI"},
 		{Path: "internal/climatology/testdata/pyiri-golden-day.txt", Source: "PyIRI"},
+		{Path: "tools/tables/igrf/igrf14coeffs.txt", Source: "IGRF-14"},
+		{Path: "tools/tables/igrf/golden-igrf.txt", Source: "IGRF-14"},
 	}
 }

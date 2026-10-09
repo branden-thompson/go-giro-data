@@ -17,7 +17,9 @@ import (
 const (
 	minFlux, maxFlux = 50.0, 500.0
 	maxLines         = 1000 // far past the file's 30 days
-	window           = 30   // days
+	// The years a day may lie in: F10.7's record begins in 1947.
+	firstYear, lastYear = 1947, 2200
+	window              = 30 // days
 )
 
 // Daily is one day's observed flux.
@@ -64,6 +66,9 @@ func parseLine(line string) (Daily, bool) {
 			return Daily{}, false
 		}
 		n[i] = v
+	}
+	if n[0] < firstYear || n[0] > lastYear {
+		return Daily{}, false
 	}
 	date := time.Date(n[0], time.Month(n[1]), n[2], 0, 0, 0, 0, time.UTC)
 	real := date.Year() == n[0] && int(date.Month()) == n[1] && date.Day() == n[2]

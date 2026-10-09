@@ -35,7 +35,11 @@ Sources the library reads, or will read, and their terms:
 
 4. IGRF-14, the International Geomagnetic Reference Field (IAGA, Working Group V-MOD): its published
    coefficients generate the library's magnetic-coordinate table (watchpost D-107). Freely available from
-   IAGA; the terms and citation are recorded from IAGA's release when the coefficients are committed (G3.5).
+   IAGA. Committed as published, and the field values of ppigrf 2.1.0 (MIT) at fixed places and dates,
+   kept as the evaluation's test oracle:
+     tools/tables/igrf/igrf14coeffs.txt (IAGA's coefficient file, as fetched 2026-10-09)
+     tools/tables/igrf/golden-igrf.txt (ppigrf's values)
+   Cite: IAGA Working Group V-MOD, the International Geomagnetic Reference Field, 14th generation.
 
 5. ITU-R P.533 and P.1239: methods implemented from the published recommendations; no recommendation
    text or tables are reproduced.
