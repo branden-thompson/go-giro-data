@@ -19,11 +19,16 @@ Sources the library reads, or will read, and their terms:
    Public domain (weather.gov/disclaimer). No endorsement by NOAA or the NWS is implied.
 
 3. PyIRI (NASA / U.S. Naval Research Laboratory), MIT licence, Copyright (c) 2023 victoriyaforsythe.
-   The climatology is a Go port of PyIRI's method. The spherical-harmonic coefficient tables shipped
-   (when they are) are NRL's refits from PyIRI, reaching the tree as a one-time plain-text export with the
-   source files' checksums (watchpost D-114); a sample of PyIRI's Apex coordinates is kept as a test oracle
-   only (watchpost D-107). They were fitted to the CCIR and URSI foF2 and M(3000)F2
-   maps, whose own provenance is CCIR/ITU and URSI; the raw CCIR/URSI tables are not shipped.
+   The climatology is a Go port of PyIRI's method. The spherical-harmonic coefficient tables shipped are
+   NRL's refits from PyIRI 0.1.7 (the CCIR foF2 refit and M(3000)F2), reaching the tree as a one-time
+   plain-text export with the source files' checksums (watchpost D-114):
+     tools/tables/export/foF2_CCIR.txt, tools/tables/export/M3000F2.txt (the export)
+     internal/climatology/tables/fof2_ccir.bin, internal/climatology/tables/m3000f2.bin (converted)
+   PyIRI's own values at fixed inputs are kept as the climatology's test oracle:
+     tools/tables/export/golden.txt, internal/climatology/testdata/pyiri-golden.txt
+   A sample of PyIRI's Apex coordinates is kept as a test oracle only (watchpost D-107). The refits were
+   fitted to the CCIR and URSI foF2 and M(3000)F2 maps, whose own provenance is CCIR/ITU and URSI; the
+   raw CCIR/URSI tables are not shipped.
    Cite: Forsythe, V. V., et al. (2024), PyIRI: whole-globe approach to the International Reference
    Ionosphere modeling implemented in Python, Space Weather, 22, doi:10.1029/2023SW003739.
 

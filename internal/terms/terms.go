@@ -39,9 +39,20 @@ func All() []Source {
 	}
 }
 
-// Datasets is every third-party dataset committed: none yet. The refits, the
-// IGRF-14 coefficients and the Apex sample are added as they are committed
-// (G3), each with its NOTICE entry.
+// Datasets is every third-party dataset committed (R-4.3), each with its
+// NOTICE entry: NRL's refits from PyIRI as exported once (watchpost D-114)
+// and as converted for the library, and PyIRI's own values at fixed inputs,
+// the climatology's test oracle. IGRF-14's coefficients and the Apex sample
+// are added as they are committed (G3.5).
 //
 // Source: this library.
-func Datasets() []Dataset { return nil }
+func Datasets() []Dataset {
+	return []Dataset{
+		{Path: "tools/tables/export/foF2_CCIR.txt", Source: "PyIRI"},
+		{Path: "tools/tables/export/M3000F2.txt", Source: "PyIRI"},
+		{Path: "tools/tables/export/golden.txt", Source: "PyIRI"},
+		{Path: "internal/climatology/tables/fof2_ccir.bin", Source: "PyIRI"},
+		{Path: "internal/climatology/tables/m3000f2.bin", Source: "PyIRI"},
+		{Path: "internal/climatology/testdata/pyiri-golden.txt", Source: "PyIRI"},
+	}
+}

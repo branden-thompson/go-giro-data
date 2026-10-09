@@ -79,6 +79,8 @@ func TestTheGateFailsOnWhatItCatches(t *testing.T) {
 		{"an unformatted file", map[string]string{"ugly.go": "package lib\n\n// Ugly is unformatted.\nfunc Ugly()  int {return 1}\n"}, []string{"--quick"}, "gofmt"},
 		{"a failing test", map[string]string{"fail_test.go": "package lib\n\nimport \"testing\"\n\nfunc TestFails(t *testing.T) { t.Fatal(\"planted\") }\n"}, []string{"--quick"}, "tests"},
 		{"an empty docs change", nil, []string{"--docs"}, "nothing is staged"},
+		{"a failing test in a tool module", map[string]string{"tools/t/go.mod": "module example.com/lib/tools/t\n\ngo 1.25.13\n",
+			"tools/t/t_test.go": "package t\n\nimport \"testing\"\n\nfunc TestFails(t *testing.T) { t.Fatal(\"planted\") }\n"}, []string{"--quick"}, "tools/t: tests"},
 	} {
 		out, ok := runGate(t, plantModule(t, c.files), c.args...)
 		if ok || !strings.Contains(out, "gate: FAILED") || !strings.Contains(out, c.leg) {

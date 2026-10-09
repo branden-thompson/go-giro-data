@@ -8,3 +8,4 @@ Every run of `scripts/gate` adds a row: when, HEAD, the git tree that was tested
 | 2026-10-09T02:12:05Z | 329e070 | 728554f7b255 | full | green | 31 | - |
 | 2026-10-09T02:25:42Z | 548f326 | 8b2afad63e03 | full | green | 34 | - |
 | 2026-10-09T02:32:34Z | abed71a | 8e87e13fde83 | full | green | 65 | - |
+| 2026-10-09T02:41:19Z | afceadb | 55cb7119ad66 | full | green | 81 | - |

@@ -128,6 +128,14 @@ if [ "$docs" = 0 ] && [ "$fuzzonly" = 0 ]; then
   leg "vet" go vet ./...
   leg "tests, race detector on" go test -race -count=1 ./...
   leg "tests, race detector off" go test -count=1 ./...
+  # THE TOOL MODULES ARE CHECKED TOO: each go.mod under tools/ is a module of
+  # its own, which ./... above never reaches.
+  for mod in tools/*/go.mod; do
+    [ -f "$mod" ] || continue
+    dir="$(dirname "$mod")"
+    leg "$dir: vet" env GOWORK=off sh -c "cd '$dir' && go vet ./..."
+    leg "$dir: tests" env GOWORK=off sh -c "cd '$dir' && go test -count=1 ./..."
+  done
 fi
 
 # --- fuzzing: every target, each for FUZZ_TIME ---------------------------------
