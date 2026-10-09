@@ -3,8 +3,11 @@ package ionomaps
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
+	"github.com/branden-thompson/go-ionomaps/internal/glotec"
+	"github.com/branden-thompson/go-ionomaps/internal/solar"
 	"github.com/branden-thompson/go-ionomaps/internal/terms"
 )
 
@@ -44,10 +47,24 @@ type Options struct {
 // its terms and the citation it asks for (R-4.1).
 type Source = terms.Source
 
-// Library makes snapshots through the host's fetcher.
+// Library makes snapshots through the host's fetcher. It is safe for
+// concurrent use (R-5.6): one update runs at a time, and holds what the next
+// needs.
 type Library struct {
 	fetch Fetcher
 	clock func() time.Time
+
+	mu        sync.Mutex
+	last      Snapshot
+	held      bool          // a snapshot has been made
+	notBefore time.Time     // NOAA is not asked before this
+	backOff   time.Duration // after a refusal (D-39); zero after an answer
+	gridAsks  []time.Time   // the grid asks in the last hour (D-39)
+	gridName  string        // the grid held
+	grid      *glotec.Grid
+	solar     solar.Held
+	solarDay  time.Time // the UTC day the solar file was last read
+	solarVal  Validators
 }
 
 // errNoFetcher is New without the host's network.

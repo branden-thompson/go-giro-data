@@ -101,6 +101,7 @@ Size (estimates, L-F14): G0 1, G1 1, G2 2, G3 3 (with IGRF and the export), G4 1
 | # | Task | Test first |
 |---|---|---|
 | G4.1 | foF2 over GloTEC, M(3000)F2 over the climatology (D-101); climatology for foF2 when GloTEC is missing, named | `TestTheFallbackIsUsedAndNamed`, `TestM3000BackgroundIsTheClimatology` |
+| G4.2 | The NOAA-only update for UAT-1 (watchpost D-151, A-4): GloTEC through its index, the solar file once a day, the background, the snapshot, D-39 for NOAA | `TestAnUpdateMakesTheFieldsFromNOAA`, `TestAnUpdateTooSoonAnswersFromTheLast`, `TestARefusalBacksOff`, `TestGridsAreAskedAtMostSixAnHour`, `TestTheNewestGridIsReadFromTheIndex` |
 | G5.1 | The GP on the sphere for foF2 and M(3000)F2 residuals; kernel valid on the sphere | `TestTheKernelIsValidOnTheSphere` (positive-definite on random station sets), `TestAResidualAtAStationIsRecovered`, `TestAFieldSaysWhereItIsMeasured` |
 | G5.2 | The live and typical offsets, and the no-readings correction, asked per update (D-105, R-9.6, A-30) | `TestTheLiveOffsetIsCarried`, `TestTheTypicalOffsetLearnsFromUpdates`, `TestTheNoReadingsCorrectionIsNamed`, `TestTogglingTheCorrectionMakesNoRequest` |
 | G6.1 | P.533 path MUF | `TestPathMUFFollowsP533` against the recommendation's worked values, `TestEachBandsStatusForAPath`, `TestShortPathsUseFoF2` |

@@ -221,3 +221,55 @@ func BenchmarkGloTECDecode(b *testing.B) {
 		}
 	}
 }
+
+// listing is a directory index in the layout NOAA's server writes, built
+// here: one line a name.
+func listing(names ...string) []byte {
+	var b strings.Builder
+	b.WriteString("<html><body><pre><a href=\"?C=N;O=D\">Name</a>\n<a href=\"/products/glotec/\">Parent Directory</a>\n")
+	for _, n := range names {
+		b.WriteString("<a href=\"" + n + "\">" + n + "</a> 2026-10-09 11:20  2.4M\n")
+	}
+	b.WriteString("</pre></body></html>\n")
+	return []byte(b.String())
+}
+
+// TestTheNewestGridIsReadFromTheIndex is watchpost D-111 and D-141: the
+// newest grid is the latest time in the index's names, wherever it is
+// listed; a name past the clock, or not a grid's, is passed over; an index
+// with no grid names none.
+func TestTheNewestGridIsReadFromTheIndex(t *testing.T) {
+	now := time.Date(2026, 10, 9, 12, 0, 0, 0, time.UTC)
+	idx := listing("glotec_icao_20261009T110500Z.geojson", "glotec_icao_20261009T113500Z.geojson",
+		"glotec_icao_20261009T112500Z.geojson", "glotec_icao_20261009T130500Z.geojson", // an hour past the clock
+		"glotec_icao_20261309T113500Z.geojson", "glotec_icao_20261009T1145Z.geojson", "other_20261009T115500Z.geojson")
+	name, valid, ok := Newest(idx, now)
+	if !ok || name != "glotec_icao_20261009T113500Z.geojson" || !valid.Equal(time.Date(2026, 10, 9, 11, 35, 0, 0, time.UTC)) {
+		t.Errorf("newest %q at %v (%v)", name, valid, ok)
+	}
+	for _, empty := range [][]byte{nil, listing(), []byte("not an index"), listing("glotec_icao_20261009T130500Z.geojson")} {
+		if name, _, ok := Newest(empty, now); ok || name != "" {
+			t.Errorf("%q named %q", empty, name)
+		}
+	}
+	if _, _, ok := Newest(append(listing("glotec_icao_20261009T113500Z.geojson"), make([]byte, maxIndexBytes)...), now); ok {
+		t.Error("an index past any GloTEC index's size was read")
+	}
+}
+
+// FuzzGloTECIndex: no index panics the reading; a name read is a grid's, at
+// a time no later than the clock allows.
+func FuzzGloTECIndex(f *testing.F) {
+	now := time.Date(2026, 10, 9, 12, 0, 0, 0, time.UTC)
+	f.Add(listing("glotec_icao_20261009T113500Z.geojson"))
+	f.Add([]byte("glotec_icao_99999999T999999Z.geojson"))
+	f.Fuzz(func(t *testing.T, idx []byte) {
+		name, valid, ok := Newest(idx, now)
+		if !ok {
+			return
+		}
+		if !strings.HasPrefix(name, "glotec_icao_") || !strings.HasSuffix(name, ".geojson") || valid.After(now.Add(clockSkew)) {
+			t.Errorf("read %q at %v", name, valid)
+		}
+	})
+}
