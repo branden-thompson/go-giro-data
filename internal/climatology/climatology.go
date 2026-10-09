@@ -97,17 +97,36 @@ func harmonics(theta, phi float64) [Harmonics]float64 {
 	var out [Harmonics]float64
 	z := math.Cos(theta)
 	p := legendre(z)
+	// cos(mφ) and sin(mφ) for every order, stepped by the angle-sum rule.
+	var cm, sm [lmax + 1]float64
+	c1, s1 := math.Cos(phi), math.Sin(phi)
+	cm[0] = 1
+	for m := 1; m <= lmax; m++ {
+		cm[m], sm[m] = cm[m-1]*c1-sm[m-1]*s1, sm[m-1]*c1+cm[m-1]*s1
+	}
 	for l := 0; l <= lmax; l++ {
 		base := l * (l + 1)
-		out[base] = p[l][0] * math.Sqrt(float64(2*l+1))
+		out[base] = p[l][0] * norms[l][0]
 		for m := 1; m <= l; m++ {
-			norm := math.Sqrt(2 * float64(2*l+1) * ratio(l, m))
-			out[base+m] = p[l][m] * norm * math.Cos(float64(m)*phi)
-			out[base-m] = p[l][m] * norm * math.Sin(float64(m)*phi)
+			pn := p[l][m] * norms[l][m]
+			out[base+m] = pn * cm[m]
+			out[base-m] = pn * sm[m]
 		}
 	}
 	return out
 }
+
+// norms is each degree and order's 4π normalisation: √(2l+1) for order 0,
+// √(2(2l+1)(l-m)!/(l+m)!) for the rest. Fixed, so made once.
+var norms = func() (n [lmax + 1][lmax + 1]float64) {
+	for l := 0; l <= lmax; l++ {
+		n[l][0] = math.Sqrt(float64(2*l + 1))
+		for m := 1; m <= l; m++ {
+			n[l][m] = math.Sqrt(2 * float64(2*l+1) * ratio(l, m))
+		}
+	}
+	return n
+}()
 
 // ratio is (l-m)!/(l+m)!, as a product, which never overflows.
 func ratio(l, m int) float64 {

@@ -1,0 +1,130 @@
+package background
+
+import (
+	"math"
+	"testing"
+	"time"
+
+	"github.com/branden-thompson/go-ionomaps/internal/climatology"
+	"github.com/branden-thompson/go-ionomaps/internal/glotec"
+	"github.com/branden-thompson/go-ionomaps/internal/magcoords"
+)
+
+var noon = time.Date(2026, 10, 9, 12, 0, 0, 0, time.UTC)
+
+// expected is the climatology at one of our cells, as the background must
+// give it: the cell centre's quasi-dipole coordinates and MLT, the hour
+// folded.
+func expected(row, col int) (fo, m3 float64) {
+	lat, lon := 89-2*float64(row), -179+2*float64(col)
+	qdlat, qdlon, _ := magcoords.QD(lat, lon, noon)
+	return climatology.NewHour(climatology.Refits(), noon, 150).At(qdlat, magcoords.MLT(qdlon, noon))
+}
+
+// flatGloTEC is a GloTEC grid whose foF2 rises with latitude, 5 MHz at the
+// equator and 1 MHz every 30°, so bilinear regridding is exact within its
+// rows.
+func flatGloTEC() *glotec.Grid {
+	g := &glotec.Grid{Valid: noon, West: -180, South: -90, East: 180, North: 90, Cols: 72, Rows: 72,
+		FoF2: make([]float32, 72*72), HmF2: make([]float32, 72*72), Quality: make([]uint8, 72*72), NoData: make(glotec.Cells, 72*72)}
+	for r := range 72 {
+		for c := range 72 {
+			g.FoF2[r*72+c] = float32(5 + (88.75-2.5*float64(r))/30)
+		}
+	}
+	return g
+}
+
+// TestTheFallbackIsUsedAndNamed is G4.1 (watchpost D-101, FR-5.2): with no
+// GloTEC, foF2's background is the climatology at every cell, and named so;
+// with GloTEC it is GloTEC's, regridded, and named so.
+func TestTheFallbackIsUsedAndNamed(t *testing.T) {
+	b := Build(noon, 150, nil)
+	if b.FoF2From != Climatology || b.M3000From != Climatology {
+		t.Fatalf("without GloTEC the backgrounds are %v and %v", b.FoF2From, b.M3000From)
+	}
+	for _, rc := range [][2]int{{0, 0}, {20, 33}, {44, 90}, {70, 150}, {89, 179}} {
+		fo, _ := expected(rc[0], rc[1])
+		if got := b.FoF2[rc[0]*Cols+rc[1]]; math.Abs(float64(got)-fo) > 1e-4 {
+			t.Errorf("cell %v: foF2 %v; the climatology gives %v", rc, got, fo)
+		}
+	}
+	g := Build(noon, 150, flatGloTEC())
+	if g.FoF2From != GloTEC || g.Filled != 0 {
+		t.Fatalf("with GloTEC the background is %v, %d cells filled", g.FoF2From, g.Filled)
+	}
+	for _, row := range []int{1, 22, 45, 67, 88} {
+		lat := 89 - 2*float64(row)
+		if got, want := float64(g.FoF2[row*Cols+50]), 5+lat/30; math.Abs(got-want) > 1e-4 {
+			t.Errorf("row %d (%v°): foF2 %v; GloTEC regridded gives %v", row, lat, got, want)
+		}
+	}
+}
+
+// TestM3000BackgroundIsTheClimatology is R-9.3 (watchpost D-101): M(3000)F2
+// is the climatology's at every cell, with GloTEC or without.
+func TestM3000BackgroundIsTheClimatology(t *testing.T) {
+	b := Build(noon, 150, flatGloTEC())
+	for _, rc := range [][2]int{{3, 7}, {30, 100}, {45, 0}, {60, 60}, {86, 170}} {
+		_, m3 := expected(rc[0], rc[1])
+		if got := b.M3000[rc[0]*Cols+rc[1]]; math.Abs(float64(got)-m3) > 1e-4 {
+			t.Errorf("cell %v: M(3000)F2 %v; the climatology gives %v", rc, got, m3)
+		}
+	}
+}
+
+// TestARefusedGloTECCellIsFilled is R-3.3: GloTEC cells refused by their
+// bounds are left out of the regridding; a cell with no valid GloTEC around
+// it takes the climatology's value and is counted; nothing leaves that is
+// no finite number.
+func TestARefusedGloTECCellIsFilled(t *testing.T) {
+	g := flatGloTEC()
+	for r := 30; r < 40; r++ { // a band of refused cells, about 25° wide
+		for c := 20; c < 30; c++ {
+			g.NoData[r*72+c] = true
+			g.FoF2[r*72+c] = 0
+		}
+	}
+	b := Build(noon, 150, g)
+	if b.Filled == 0 {
+		t.Error("no cell was filled from the climatology inside a block of refused GloTEC cells")
+	}
+	for i, v := range b.FoF2 {
+		if math.IsNaN(float64(v)) || math.IsInf(float64(v), 0) || v <= 0 {
+			t.Fatalf("cell %d: foF2 %v", i, v)
+		}
+	}
+	all := flatGloTEC()
+	for i := range all.NoData {
+		all.NoData[i] = true
+	}
+	if b := Build(noon, 150, all); b.FoF2From != Climatology || b.Filled != Cols*Rows {
+		t.Errorf("a GloTEC grid with no valid cell: background %v, %d filled", b.FoF2From, b.Filled)
+	}
+}
+
+// TestAGridTooSmallToRegridIsTheClimatology: a GloTEC grid of one row or
+// one column has no cells to interpolate between; the background is the
+// climatology's, every cell filled, and nothing panics.
+func TestAGridTooSmallToRegridIsTheClimatology(t *testing.T) {
+	for _, cr := range [][2]int{{72, 1}, {1, 72}} {
+		g := &glotec.Grid{Valid: noon, West: -180, South: -90, East: 180, North: 90, Cols: cr[0], Rows: cr[1],
+			FoF2: make([]float32, cr[0]*cr[1]), NoData: make(glotec.Cells, cr[0]*cr[1])}
+		for i := range g.FoF2 {
+			g.FoF2[i] = 7
+		}
+		if b := Build(noon, 150, g); b.FoF2From != Climatology || b.Filled != Cols*Rows {
+			t.Errorf("a %d by %d grid: background %v, %d filled", cr[0], cr[1], b.FoF2From, b.Filled)
+		}
+	}
+}
+
+// BenchmarkBuild is one hour's backgrounds over the whole grid, with GloTEC
+// (G1's cost: an update builds the current hour and up to 24 typical ones).
+func BenchmarkBuild(b *testing.B) {
+	g := flatGloTEC()
+	b.ReportAllocs()
+	for b.Loop() {
+		Build(noon, 150, g)
+	}
+}
