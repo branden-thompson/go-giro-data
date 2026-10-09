@@ -1,0 +1,223 @@
+package glotec
+
+import (
+	"encoding/json"
+	"math"
+	"strings"
+	"testing"
+	"time"
+)
+
+func (c Cells) has(i int) bool { return i >= 0 && i < len(c) && c[i] }
+
+func (c Cells) count() int {
+	n := 0
+	for _, v := range c {
+		if v {
+			n++
+		}
+	}
+	return n
+}
+
+// now is the clock the tests read at: after every synthetic grid's time.
+var now = time.Date(2026, 10, 9, 12, 0, 0, 0, time.UTC)
+
+// synthetic is a GloTEC-shaped grid built here, never NOAA's own data
+// (R-4.3): 72 by 72 points at 5° by 2.5° cell centres, each with NmF2 from
+// the rule nm, hmF2 300 km and quality 5.
+func synthetic(t testing.TB, nm func(lon, lat float64) float64) []byte {
+	t.Helper()
+	type props struct {
+		TEC     float64 `json:"tec"`
+		HmF2    float64 `json:"hmF2"`
+		NmF2    float64 `json:"NmF2"`
+		Quality int     `json:"quality_flag"`
+	}
+	type feature struct {
+		Type     string `json:"type"`
+		Geometry struct {
+			Type        string     `json:"type"`
+			Coordinates [2]float64 `json:"coordinates"`
+		} `json:"geometry"`
+		Properties props `json:"properties"`
+	}
+	doc := struct {
+		Type     string    `json:"type"`
+		Features []feature `json:"features"`
+		TimeTag  string    `json:"time_tag"`
+	}{Type: "FeatureCollection", TimeTag: "2026-10-09T11:55:00Z"}
+	for i := range 72 {
+		for j := range 72 {
+			var f feature
+			f.Type, f.Geometry.Type = "Feature", "Point"
+			lon, lat := -177.5+5*float64(i), -88.75+2.5*float64(j)
+			f.Geometry.Coordinates = [2]float64{lon, lat}
+			f.Properties = props{TEC: 10, HmF2: 300, NmF2: nm(lon, lat), Quality: 5}
+			doc.Features = append(doc.Features, f)
+		}
+	}
+	b, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
+}
+
+// flat is NmF2 for a foF2 of 10 MHz everywhere.
+func flat(float64, float64) float64 { return math.Pow(10/8.98e-6, 2) }
+
+// TestFoF2FromNmF2 is the plasma frequency (ITU-R P.1239): foF2 in MHz is
+// 8.98e-6 times the square root of NmF2 in electrons per cubic metre.
+func TestFoF2FromNmF2(t *testing.T) {
+	for _, c := range []struct{ nm, mhz float64 }{{1.24e12, 10.0}, {2.162e12, 13.2}, {3.1e10, 1.58}} {
+		if got := FoF2(c.nm); math.Abs(got-c.mhz) > 0.01 {
+			t.Errorf("NmF2 %g gives %.3f MHz; want %.2f", c.nm, got, c.mhz)
+		}
+	}
+}
+
+// TestAGridIsReadIntoItsCells is G2.2: the 72 by 72 points become cells rows
+// from the north, each west to east, with their foF2, hmF2 and quality, and
+// the grid's own valid time.
+func TestAGridIsReadIntoItsCells(t *testing.T) {
+	g, err := Decode(synthetic(t, func(lon, lat float64) float64 {
+		return math.Pow((5+lat/30+lon/180)/8.98e-6, 2)
+	}), now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if g.Cols != 72 || g.Rows != 72 || g.West != -180 || g.East != 180 || g.South != -90 || g.North != 90 {
+		t.Fatalf("grid %d by %d over %v..%v, %v..%v", g.Cols, g.Rows, g.West, g.East, g.South, g.North)
+	}
+	if !g.Valid.Equal(time.Date(2026, 10, 9, 11, 55, 0, 0, time.UTC)) {
+		t.Errorf("valid %v", g.Valid)
+	}
+	first, last := g.FoF2[0], g.FoF2[len(g.FoF2)-1] // the north-west cell, then the south-east
+	if math.Abs(float64(first)-(5+88.75/30-177.5/180)) > 0.001 || math.Abs(float64(last)-(5-88.75/30+177.5/180)) > 0.001 {
+		t.Errorf("north-west %.3f and south-east %.3f MHz: rows are not from the north, west to east", first, last)
+	}
+	if g.HmF2[0] != 300 || g.Quality[0] != 5 || g.Rejected != 0 || g.NoData.count() != 0 {
+		t.Errorf("hmF2 %v, quality %v, %d rejected, %d without data", g.HmF2[0], g.Quality[0], g.Rejected, g.NoData.count())
+	}
+}
+
+// TestOutOfRangeCellsAreRejectedAndCounted is R-3.3: a cell whose foF2 or
+// hmF2 is past its physical bounds is marked without data, counted, and its
+// value never read; every value that leaves is finite.
+func TestOutOfRangeCellsAreRejectedAndCounted(t *testing.T) {
+	g, err := Decode(synthetic(t, func(lon, lat float64) float64 {
+		switch {
+		case lon == -177.5 && lat == 88.75:
+			return 1e16 // foF2 of 898 MHz
+		case lon == 177.5 && lat == -88.75:
+			return 0
+		}
+		return flat(lon, lat)
+	}), now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if g.Rejected != 2 || !g.NoData.has(0) || !g.NoData.has(len(g.FoF2)-1) || g.NoData.has(1) {
+		t.Errorf("%d rejected; the two out-of-range cells marked %v, %v", g.Rejected, g.NoData.has(0), g.NoData.has(len(g.FoF2)-1))
+	}
+	for i, v := range g.FoF2 {
+		if math.IsNaN(float64(v)) || math.IsInf(float64(v), 0) {
+			t.Fatalf("cell %d is %v", i, v)
+		}
+	}
+}
+
+// TestAChangedFormatIsAnError is R-3.1: a grid that is not the 72 by 72
+// layout, has no time, is from the future, or holds too many points is an
+// error, never a silently wrong field; and no error quotes the input.
+func TestAChangedFormatIsAnError(t *testing.T) {
+	good := string(synthetic(t, flat))
+	for _, c := range []struct{ what, doc string }{
+		{"not JSON", "<html>secret-token-123</html>"},
+		{"no time", strings.Replace(good, `"time_tag":"2026-10-09T11:55:00Z"`, `"time_tag":""`, 1)},
+		{"a time from the future", strings.Replace(good, "2026-10-09T11:55:00Z", "2026-10-10T11:55:00Z", 1)},
+		{"a point moved off the grid", strings.Replace(good, "[-177.5,-88.75]", "[-177.4,-88.75]", 1)},
+		{"a point missing", dropPoint(t, good)},
+		{"a point repeated in another's place", repeatPoint(t, good)},
+	} {
+		_, err := Decode([]byte(c.doc), now)
+		if err == nil {
+			t.Errorf("%s was accepted", c.what)
+			continue
+		}
+		if strings.Contains(err.Error(), "secret-token") || strings.Contains(err.Error(), "html") {
+			t.Errorf("%s: the error quotes the input: %v", c.what, err)
+		}
+	}
+}
+
+// dropPoint is a grid with its first point taken out.
+func dropPoint(t *testing.T, doc string) string {
+	t.Helper()
+	var m map[string]any
+	if err := json.Unmarshal([]byte(doc), &m); err != nil {
+		t.Fatal(err)
+	}
+	features := m["features"].([]any)
+	m["features"] = features[1:]
+	b, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}
+
+// repeatPoint is a grid whose first point stands where its second does, so
+// one cell is given twice and another never.
+func repeatPoint(t *testing.T, doc string) string {
+	t.Helper()
+	var m map[string]any
+	if err := json.Unmarshal([]byte(doc), &m); err != nil {
+		t.Fatal(err)
+	}
+	features := m["features"].([]any)
+	second := features[1].(map[string]any)["geometry"].(map[string]any)["coordinates"]
+	features[0].(map[string]any)["geometry"].(map[string]any)["coordinates"] = second
+	b, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}
+
+// FuzzGloTECDecode is R-3.1, R-3.3: no input panics; an accepted grid is
+// the 72 by 72 layout with every value finite and in its bounds.
+func FuzzGloTECDecode(f *testing.F) {
+	f.Add(synthetic(f, flat))
+	f.Add([]byte(`{"type":"FeatureCollection","features":[],"time_tag":"2026-10-09T11:55:00Z"}`))
+	f.Fuzz(func(t *testing.T, data []byte) {
+		g, err := Decode(data, now)
+		if err != nil {
+			return
+		}
+		if g.Cols*g.Rows != len(g.FoF2) || len(g.FoF2) != gridCells {
+			t.Fatalf("%d by %d with %d values", g.Cols, g.Rows, len(g.FoF2))
+		}
+		for i, v := range g.FoF2 {
+			if g.NoData.has(i) {
+				continue
+			}
+			if !(float64(v) >= minFoF2 && float64(v) <= maxFoF2) {
+				t.Fatalf("cell %d: foF2 %v outside its bounds", i, v)
+			}
+		}
+	})
+}
+
+// BenchmarkGloTECDecode is R-8.2: a full grid, typed decode.
+func BenchmarkGloTECDecode(b *testing.B) {
+	data := synthetic(b, flat)
+	b.SetBytes(int64(len(data)))
+	b.ReportAllocs()
+	for b.Loop() {
+		if _, err := Decode(data, now); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
