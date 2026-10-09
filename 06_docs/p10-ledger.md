@@ -8,7 +8,7 @@ exemption the HUM LEAD approved, with the reason as ratified. A row is added by 
 LEAD, writing it to the ledger and regenerating this file; `TestTheP10MirrorMatchesTheLedger` fails while
 the two differ, and `TestEveryP10MirrorRowNamesCodeThatExists` while a row names code that is gone.
 
-**6 rows.**
+**7 rows.**
 
 | File | Symbol | Rule | Ratified | Reason |
 |---|---|---|---|---|
@@ -18,3 +18,4 @@ the two differ, and `TestEveryP10MirrorRowNamesCodeThatExists` while a row names
 | `.` | `package` | P10-05-INVARIANT-DENSITY | 2026-10-09 | G1's public types and plumbing: New (refuses a nil fetcher, defaults the clock), Sources (a static list), Field.CellCentre (refuses a cell off the grid), Bitset's Len, Has and Set, Background.String and two constructors; the checks that mean something are in, more would pad. RATIFIED by HUM LEAD 2026-10-09 (D-53, for D-52's nine functions). Ends at G4: TestTheRootExemptionEndsAtUpdate fails once Library.Update is declared while this row stands, so Update and the answers are held to the bar. |
 | `internal/climatology` | `package` | P10-05-INVARIANT-DENSITY | 2026-10-09 | The climatology's real checks are in: coefficients of the wrong shape, input that is no finite number or off the sphere, a month or solar level the tables lack. The rest is numerical kernel - the associated Legendre recurrences and the Fourier and spherical-harmonic bases - total functions over bounded loops with nothing to assert. Correctness is held by TestTheFallbackMatchesPyIRI (512 values within 3.7e-14 of PyIRI 0.1.7) and six hand mutants of its formulas, all killed. RATIFIED by HUM LEAD 2026-10-09 (D-54: "Ratify both"). |
 | `tools/tables` | `package` | P10-05-INVARIANT-DENSITY | 2026-10-09 | The build-time converter: a nested module never built into the library, run by hand after the one-time export (watchpost D-114). It refuses a short or odd export and checks the shape it writes; it is held by TestTheConvertedTablesRoundTrip and TestTheExportMatchesItsRecordedChecksums. RATIFIED by HUM LEAD 2026-10-09 (D-54). |
+| `internal/magcoords` | `package` | P10-05-INVARIANT-DENSITY | 2026-10-09 | Quasi-dipole coordinates and magnetic local time from the build-time table: the real checks are in (an unreadable table, a place that is no finite number); the rest - the subsolar point, the Julian date, bilinear and yearly interpolation, longitude wrap - are kernels with nothing to assert. Held by the Apex.nc sample (within 0.36 degrees to 80 latitude; 0.31 MHz worst in MUF(3000)), PyIRI's subsolar points to 1e-6, PyIRI's MLT, and hand mutants. RATIFIED by HUM LEAD 2026-10-09 (D-55). |

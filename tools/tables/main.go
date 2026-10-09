@@ -129,12 +129,33 @@ func main() {
 		}
 		fmt.Printf("%s -> %s (%d values)\n", c.from, out, len(t.values))
 	}
+	model, err := loadIGRF(filepath.Join("igrf", "igrf14coeffs.txt"))
+	if err != nil {
+		fail(err)
+	}
+	years := []int{2025, 2026, 2027, 2028, 2029, 2030}
+	coords, err := generateCoords(model, years)
+	if err != nil {
+		fail(err)
+	}
+	out := filepath.Join(*root, "internal", "magcoords", "coords.bin")
+	if err := os.WriteFile(out, writeCoords(years, coords), 0o644); err != nil {
+		fail(err)
+	}
+	fmt.Printf("igrf14coeffs.txt -> %s (%v)\n", out, years)
+	sample, err := os.ReadFile(filepath.Join("apex", "apex-sample.txt"))
+	if err != nil {
+		fail(err)
+	}
+	if err := os.WriteFile(filepath.Join(*root, "internal", "magcoords", "testdata", "apex-sample.txt"), sample, 0o644); err != nil {
+		fail(err)
+	}
 	for _, c := range []struct{ from, to string }{{"golden.txt", "pyiri-golden.txt"}, {"golden-day.txt", "pyiri-golden-day.txt"}} {
 		golden, err := os.ReadFile(filepath.Join("export", c.from))
 		if err != nil {
 			fail(err)
 		}
-		out := filepath.Join(*root, "internal", "climatology", "testdata", c.to)
+		out = filepath.Join(*root, "internal", "climatology", "testdata", c.to)
 		if err := os.WriteFile(out, golden, 0o644); err != nil {
 			fail(err)
 		}

@@ -49,7 +49,7 @@ func TestIGRFMatchesItsPublishedValues(t *testing.T) {
 			}
 		}
 		year := decimalYear(time.Date(int(v[3]), time.Month(v[4]), int(v[5]), 0, 0, 0, 0, time.UTC))
-		br, bt, bp := model.field(v[0], v[1]*math.Pi/180, v[2]*math.Pi/180, year)
+		br, bt, bp := model.at(year).field(v[0], v[1]*math.Pi/180, v[2]*math.Pi/180)
 		for i, got := range []float64{br, bt, bp} {
 			d := math.Abs(got - v[6+i])
 			worst = max(worst, d)

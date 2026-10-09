@@ -148,17 +148,29 @@ func (m igrf) coefficients(year float64) (g, h [][]float64) {
 	return g, h
 }
 
-// field is the main field at a geocentric radius in km, colatitude and
-// longitude in radians, and decimal year: its radial, colatitude and
-// longitude components in nT, B = -∇V.
-func (m igrf) field(r, theta, phi, year float64) (br, bt, bp float64) {
+// model is the field at one moment: the coefficients interpolated once.
+type model struct {
+	degree int
+	g, h   [][]float64
+}
+
+// at is the model at a decimal year.
+func (m igrf) at(year float64) model {
 	g, h := m.coefficients(year)
-	p, dp := schmidt(m.degree, theta)
+	return model{degree: m.degree, g: g, h: h}
+}
+
+// field is the main field at a geocentric radius in km, colatitude and
+// longitude in radians: its radial, colatitude and longitude components in
+// nT, B = -∇V.
+func (md model) field(r, theta, phi float64) (br, bt, bp float64) {
+	g, h := md.g, md.h
+	p, dp := schmidt(md.degree, theta)
 	s := math.Sin(theta)
 	if math.Abs(s) < 1e-10 {
 		s = 1e-10 // at a pole, where the longitude term's limit is taken
 	}
-	for n := 1; n <= m.degree; n++ {
+	for n := 1; n <= md.degree; n++ {
 		rn := math.Pow(igrfRadius/r, float64(n+2))
 		for o := 0; o <= n; o++ {
 			c, sn := math.Cos(float64(o)*phi), math.Sin(float64(o)*phi)

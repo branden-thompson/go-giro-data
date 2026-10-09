@@ -27,7 +27,9 @@ Sources the library reads, or will read, and their terms:
    PyIRI's own values at fixed inputs are kept as the climatology's test oracle:
      tools/tables/export/golden.txt, internal/climatology/testdata/pyiri-golden.txt,
      tools/tables/export/golden-day.txt, internal/climatology/testdata/pyiri-golden-day.txt
-   A sample of PyIRI's Apex coordinates is kept as a test oracle only (watchpost D-107). The refits were
+   A sample of PyIRI's Apex coordinates is kept as a test oracle only (watchpost D-107):
+     tools/tables/apex/apex-sample.txt, internal/magcoords/testdata/apex-sample.txt
+   The refits were
    fitted to the CCIR and URSI foF2 and M(3000)F2 maps, whose own provenance is CCIR/ITU and URSI; the
    raw CCIR/URSI tables are not shipped.
    Cite: Forsythe, V. V., et al. (2024), PyIRI: whole-globe approach to the International Reference
@@ -39,6 +41,8 @@ Sources the library reads, or will read, and their terms:
    kept as the evaluation's test oracle:
      tools/tables/igrf/igrf14coeffs.txt (IAGA's coefficient file, as fetched 2026-10-09)
      tools/tables/igrf/golden-igrf.txt (ppigrf's values)
+   The library's own quasi-dipole coordinates are generated from it at build time:
+     internal/magcoords/coords.bin
    Cite: IAGA Working Group V-MOD, the International Geomagnetic Reference Field, 14th generation.
 
 5. ITU-R P.533 and P.1239: methods implemented from the published recommendations; no recommendation

@@ -59,5 +59,8 @@ func Datasets() []Dataset {
 		{Path: "internal/climatology/testdata/pyiri-golden-day.txt", Source: "PyIRI"},
 		{Path: "tools/tables/igrf/igrf14coeffs.txt", Source: "IGRF-14"},
 		{Path: "tools/tables/igrf/golden-igrf.txt", Source: "IGRF-14"},
+		{Path: "internal/magcoords/coords.bin", Source: "IGRF-14"},
+		{Path: "tools/tables/apex/apex-sample.txt", Source: "PyIRI"},
+		{Path: "internal/magcoords/testdata/apex-sample.txt", Source: "PyIRI"},
 	}
 }
