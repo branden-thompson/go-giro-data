@@ -82,10 +82,10 @@ func TestTheNoticeNamesEverySource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if missing := repocheck.MissingFromNotice(string(notice), terms.Sources(), terms.Datasets()); len(missing) != 0 {
+	if missing := repocheck.MissingFromNotice(string(notice), terms.All(), terms.Datasets()); len(missing) != 0 {
 		t.Errorf("the NOTICE does not name: %s", strings.Join(missing, ", "))
 	}
-	planted := append(terms.Sources(), terms.Source{Name: "A Source Nobody Credited"})
+	planted := append(terms.All(), terms.Source{Name: "A Source Nobody Credited"})
 	if missing := repocheck.MissingFromNotice(string(notice), planted, nil); len(missing) != 1 {
 		t.Errorf("a planted source missing from the NOTICE gave %v: the check cannot fail", missing)
 	}

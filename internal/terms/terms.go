@@ -20,11 +20,11 @@ type Dataset struct {
 	Source string
 }
 
-// Sources is every source the library reads or is built from.
+// All is every source the library reads or is built from.
 //
 // Source: this library; each entry's terms and citation as the NOTICE gives
 // them.
-func Sources() []Source {
+func All() []Source {
 	return []Source{
 		{Name: "GIRO", Hosts: []string{"lgdc.uml.edu"},
 			Terms: "CC BY-NC-SA 4.0; offered only for educational and non-commercial research purposes",

@@ -1,0 +1,188 @@
+package ionomaps
+
+import "time"
+
+// A Snapshot is immutable: every update returns fresh slices (P-6). Hours[0]
+// is now; then up to 24 hours ahead, typical (R-1.3, watchpost D-109).
+type Snapshot struct {
+	Computed     time.Time    // the age is the host's clock minus this
+	Hours        []Hour       // Hours[0] is now; then the hours ahead, typical
+	NearestKm    []float32    // per cell: distance to the nearest assimilated station (R-2.11); measured within 500 km (R-3.2)
+	Background   Backgrounds  // per field (watchpost D-101)
+	Inputs       Inputs       // what fed it, and when (R-3.3, R-9.5, R-9.7)
+	Early        Reason       // why this is not from new data (R-5.4)
+	Scales       Scales       // NOAA's space-weather levels (watchpost D-88)
+	Offset       Offset       // stations against GloTEC (watchpost D-105)
+	TypicalError TypicalError // the hours ahead's error, with its basis (watchpost D-109)
+}
+
+// Hour is one hour's fields: valid from At, for the hour that starts there.
+type Hour struct {
+	At      time.Time
+	MUF3000 Field
+	FoF2    Field
+}
+
+// Field is a value a cell over a box: rows from the north, each west to east,
+// Cols times Rows of them, every one finite (R-3.3). A cell with no known
+// value is marked in NoData; its value is then not to be read.
+type Field struct {
+	West, South, East, North float64
+	Cols, Rows               int
+	Values                   []float32
+	NoData                   Bitset
+}
+
+// The global grid (R-1.1): 2° cells over the whole globe, edges at -180..180
+// and -90..90, no antimeridian crossing; the only step in v0.1.0 (D-138).
+const (
+	gridStep = 2
+	gridCols = 360 / gridStep
+	gridRows = 180 / gridStep
+)
+
+// globalField is an empty field over the global grid: every value zero and
+// every cell without data.
+func globalField() Field {
+	f := Field{West: -180, South: -90, East: 180, North: 90, Cols: gridCols, Rows: gridRows,
+		Values: make([]float32, gridCols*gridRows), NoData: newBitset(gridCols * gridRows)}
+	for i := range f.Values {
+		f.NoData.Set(i)
+	}
+	return f
+}
+
+// CellCentre is the longitude and latitude of a cell's centre, the place its
+// value is for; false for a cell outside the field.
+//
+// Source: this library; the cell layout go-tuiMaps reads a grid with.
+func (f Field) CellCentre(col, row int) (lon, lat float64, ok bool) {
+	if f.Cols <= 0 || f.Rows <= 0 {
+		return 0, 0, false
+	}
+	if col < 0 || col >= f.Cols || row < 0 || row >= f.Rows {
+		return 0, 0, false
+	}
+	w, h := (f.East-f.West)/float64(f.Cols), (f.North-f.South)/float64(f.Rows)
+	return f.West + (float64(col)+0.5)*w, f.North - (float64(row)+0.5)*h, true
+}
+
+// Bitset is a set of cells by index.
+type Bitset struct {
+	bits []uint64
+	n    int
+}
+
+func newBitset(n int) Bitset { return Bitset{bits: make([]uint64, (n+63)/64), n: n} }
+
+// Len is how many cells the set covers.
+//
+// Source: this library.
+func (b Bitset) Len() int { return b.n }
+
+// Has reports whether cell i is in the set; a cell outside it never is.
+//
+// Source: this library.
+func (b Bitset) Has(i int) bool {
+	if i < 0 || i >= b.n {
+		return false
+	}
+	return b.bits[i/64]&(1<<(i%64)) != 0
+}
+
+// Set puts cell i in the set; a cell outside it is passed over.
+//
+// Source: this library.
+func (b Bitset) Set(i int) {
+	if i < 0 || i >= b.n {
+		return
+	}
+	b.bits[i/64] |= 1 << (i % 64)
+}
+
+// Background is what a field's background was made from (watchpost D-101).
+type Background uint8
+
+// The backgrounds.
+const (
+	NoBackground Background = iota // nothing yet
+	GloTEC                         // NOAA SWPC's GloTEC, foF2 from NmF2
+	Climatology                    // the climatology, the PyIRI method
+)
+
+// String names a background.
+//
+// Source: this library.
+func (b Background) String() string {
+	switch b {
+	case GloTEC:
+		return "GloTEC"
+	case Climatology:
+		return "climatology"
+	}
+	return "none"
+}
+
+// Backgrounds are each field's background: foF2 over GloTEC, else the
+// climatology; M(3000)F2 over the climatology (watchpost D-101).
+type Backgrounds struct{ FoF2, M3000 Background }
+
+// Inputs are what fed a snapshot, and when (R-3.3, R-9.5, R-9.7).
+type Inputs struct {
+	Stations, Rejected int           // readings used, and refused by range checks
+	GloTECValid        time.Time     // the grid's own valid time; zero when GloTEC was missing
+	OldestReading      time.Time     // the oldest GIRO reading assimilated
+	DRAPValid          time.Time     // zero when D-RAP was missing: no "disturbed" state
+	F107Mean           float32       // the 30-day mean used (watchpost D-104)
+	F107Days           int           // observed days in it
+	F107Age            time.Duration // since the solar file was last fetched
+	CoordsExtrapolated bool          // past IGRF-14's last year
+}
+
+// Reason is why a snapshot is not from new data (R-5.4).
+type Reason uint8
+
+// The reasons.
+const (
+	Fresh      Reason = iota // from new data
+	TooSoon                  // the hour's budget is spent
+	GIROPaused               // GIRO is backing off after a refusal
+	Offline                  // nothing could be fetched
+)
+
+// TypicalError is the hours ahead's error by distance to the nearest
+// reporting station, and where and when it was measured (watchpost D-109,
+// D-134).
+type TypicalError struct {
+	Bands []BandError
+	Basis string
+}
+
+// BandError is the typical error up to a distance: 500, 1000, 2000 km, then
+// no limit.
+type BandError struct {
+	UpToKm              float32
+	FoF2MHz, MUF3000MHz float32
+}
+
+// Scales are NOAA's space-weather levels now and their outlook, as
+// published; Valid is zero when the feed is missing, never read as level 0
+// (watchpost D-88).
+type Scales struct {
+	R, S, G int
+	Outlook []DayScale
+	Valid   time.Time
+}
+
+// DayScale is one day of NOAA's outlook: its probabilities and G level.
+type DayScale struct {
+	Day                        time.Time
+	RMinorPct, RMajorPct, SPct int
+	G                          int
+}
+
+// Offset is the stations' foF2 against GloTEC's (watchpost D-105).
+type Offset struct {
+	LiveMHz, TypicalMHz, SpreadMHz float32
+	Corrected                      bool // the no-readings correction is in use
+}
