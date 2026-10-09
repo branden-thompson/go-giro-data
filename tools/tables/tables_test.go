@@ -19,8 +19,8 @@ func TestTheExportMatchesItsRecordedChecksums(t *testing.T) {
 		t.Fatal(err)
 	}
 	lines := strings.Split(strings.TrimSpace(string(sums)), "\n")
-	if len(lines) < 3 {
-		t.Fatalf("SHA256SUMS records %d files; the export is two tables and a golden", len(lines))
+	if len(lines) < 4 {
+		t.Fatalf("SHA256SUMS records %d files; the export is two tables and two goldens", len(lines))
 	}
 	for _, line := range lines {
 		want, name, ok := strings.Cut(line, "  ")

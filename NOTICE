@@ -25,7 +25,8 @@ Sources the library reads, or will read, and their terms:
      tools/tables/export/foF2_CCIR.txt, tools/tables/export/M3000F2.txt (the export)
      internal/climatology/tables/fof2_ccir.bin, internal/climatology/tables/m3000f2.bin (converted)
    PyIRI's own values at fixed inputs are kept as the climatology's test oracle:
-     tools/tables/export/golden.txt, internal/climatology/testdata/pyiri-golden.txt
+     tools/tables/export/golden.txt, internal/climatology/testdata/pyiri-golden.txt,
+     tools/tables/export/golden-day.txt, internal/climatology/testdata/pyiri-golden-day.txt
    A sample of PyIRI's Apex coordinates is kept as a test oracle only (watchpost D-107). The refits were
    fitted to the CCIR and URSI foF2 and M(3000)F2 maps, whose own provenance is CCIR/ITU and URSI; the
    raw CCIR/URSI tables are not shipped.

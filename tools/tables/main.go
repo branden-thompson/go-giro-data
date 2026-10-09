@@ -129,15 +129,17 @@ func main() {
 		}
 		fmt.Printf("%s -> %s (%d values)\n", c.from, out, len(t.values))
 	}
-	golden, err := os.ReadFile(filepath.Join("export", "golden.txt"))
-	if err != nil {
-		fail(err)
+	for _, c := range []struct{ from, to string }{{"golden.txt", "pyiri-golden.txt"}, {"golden-day.txt", "pyiri-golden-day.txt"}} {
+		golden, err := os.ReadFile(filepath.Join("export", c.from))
+		if err != nil {
+			fail(err)
+		}
+		out := filepath.Join(*root, "internal", "climatology", "testdata", c.to)
+		if err := os.WriteFile(out, golden, 0o644); err != nil {
+			fail(err)
+		}
+		fmt.Printf("%s -> %s\n", c.from, out)
 	}
-	out := filepath.Join(*root, "internal", "climatology", "testdata", "pyiri-golden.txt")
-	if err := os.WriteFile(out, golden, 0o644); err != nil {
-		fail(err)
-	}
-	fmt.Printf("golden.txt -> %s\n", out)
 }
 
 func fail(err error) {

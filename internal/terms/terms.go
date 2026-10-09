@@ -54,5 +54,7 @@ func Datasets() []Dataset {
 		{Path: "internal/climatology/tables/fof2_ccir.bin", Source: "PyIRI"},
 		{Path: "internal/climatology/tables/m3000f2.bin", Source: "PyIRI"},
 		{Path: "internal/climatology/testdata/pyiri-golden.txt", Source: "PyIRI"},
+		{Path: "tools/tables/export/golden-day.txt", Source: "PyIRI"},
+		{Path: "internal/climatology/testdata/pyiri-golden-day.txt", Source: "PyIRI"},
 	}
 }

@@ -75,12 +75,41 @@ def export_golden(out_dir):
     return out
 
 
+def export_golden_day(out_dir):
+    """PyIRI's own day values: the two mid-month tables either side of the
+    date blended by the day, then each parameter interpolated in its solar
+    index from F10.7 (IG12 for foF2, R12 for M(3000)F2), as
+    IRI_density_1day does; the oracle for the Go port's day value."""
+    import PyIRI.main_library as ml
+    out = os.path.join(out_dir, "golden-day.txt")
+    qdlat = np.array([-55.0, -10.0, 0.0, 22.5, 48.0, 70.0])
+    mlt = np.array([1.0, 6.0, 11.5, 14.0, 19.0, 22.75])
+    uts = np.array([3.0, 15.5])
+    with open(out, "w") as f:
+        f.write(f"# source: PyIRI {PyIRI.__version__} main_library.day_of_the_month_corr, sh_library.IRI_sh_params (coord='MLT', foF2_coeff='CCIR'), main_library.solar_interpolate\n")
+        f.write("# columns: year month day f107 ut qdlat mlt foF2 M3000\n")
+        for (year, month, day) in ((2026, 1, 3), (2026, 6, 15), (2026, 12, 28), (2027, 3, 31)):
+            t0, t1, fr1, fr2 = ml.day_of_the_month_corr(year, month, day)
+            a = sh.IRI_sh_params(t0.year, t0.month, uts, mlt, qdlat, foF2_coeff="CCIR", coord="MLT")
+            b = sh.IRI_sh_params(t1.year, t1.month, uts, mlt, qdlat, foF2_coeff="CCIR", coord="MLT")
+            blend = a * fr1 + b * fr2
+            for f107 in (65.0, 120.0, 250.0):
+                fo = ml.solar_interpolate(blend[0][:, :, 0], blend[0][:, :, 1], f107, solidx="IG12", solmin=0, solmax=100)
+                m3 = ml.solar_interpolate(blend[4][:, :, 0], blend[4][:, :, 1], f107, solidx="R12", solmin=0, solmax=100)
+                for t, ut in enumerate(uts):
+                    for g in range(qdlat.size):
+                        f.write(" ".join(format(v, ".17g") for v in (year, month, day, f107, ut, qdlat[g], mlt[g],
+                                fo[t, g], m3[t, g])) + "\n")
+    return out
+
+
 def main():
     src, out_dir = sys.argv[1], sys.argv[2]
     os.makedirs(out_dir, exist_ok=True)
     for name, level in TABLES:
         print(export_table(src, name, level, out_dir))
     print(export_golden(out_dir))
+    print(export_golden_day(out_dir))
 
 
 if __name__ == "__main__":
