@@ -1,0 +1,52 @@
+# The gate, hosted (NFR-1, plan task G0.1), modelled on go-tuiMaps'.
+#
+# Every push and pull request: the quick gate on linux/amd64 and linux/arm64.
+# On dispatch, the full gate - fuzzing, the pinned vulnerability scan and the
+# cross-compiles - on both. P10 runs where the harness is set up and is named
+# NOT RUN here, on the hosted runners.
+name: gate
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gate-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+jobs:
+  gate:
+    strategy:
+      fail-fast: false # one architecture's red must not hide the other's result
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.27.2" # the gate runs every leg on the floor toolchain it reads from go.mod (watchpost D-152)
+      - name: the pinned vulnerability scanner, on PATH for the steps that follow
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: quick gate
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: scripts/gate --quick
+      - name: full gate
+        if: github.event_name == 'workflow_dispatch'
+        run: scripts/gate
+
+  both-architectures:
+    needs: gate
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: both architectures ran green
+        run: |
+          if [ "${{ needs.gate.result }}" != "success" ]; then
+            echo "the gate did not run green on both linux/amd64 and linux/arm64: ${{ needs.gate.result }}"
+            exit 1
+          fi
